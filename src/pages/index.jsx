@@ -412,7 +412,7 @@ function Team() {
                             <div className="relative h-full w-full overflow-hidden rounded-xl">
                                 <img
                                     alt="Equipo Intégrate"
-                                    src="/team-1.jpeg"
+                                    src="/team-11.jpeg"
                                     className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
