@@ -23,7 +23,7 @@ export default {
     additionalMetaTags: [
         {
             name: 'twitter:image',
-            content: `/welcome.png`
+            content: `${process.env.NEXT_PUBLIC_URL}/welcome.png`
         },
         {
             property: 'author',
