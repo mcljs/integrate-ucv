@@ -488,6 +488,68 @@ export default function Home() {
           <ProposalSection />
           <CalendarSection />
       </main>
+      <div className="py-24 bg-gradient-to-b from-white to-gray-50">
+    <Container>
+        <Heading as="h2" className="text-center">Nuestras Iniciativas</Heading>
+        <Lead className="text-center mb-16">
+            Propuestas concretas para mejorar nuestra escuela
+        </Lead>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Reconocimiento al Mérito */}
+            <motion.div 
+                className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow"
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+            >
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 bg-[#F5A623]/10 rounded-xl">
+                        <Trophy className="w-6 h-6 text-[#F5A623]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-[#1a237e]">
+                        Reconocimiento al Mérito Estudiantil
+                    </h3>
+                </div>
+                <p className="text-gray-600">
+                    Trabajaremos con la coordinación académica y de extensión para reconocer 
+                    a estudiantes destacados en ámbitos académicos, deportivos, culturales y 
+                    de voluntariado, promoviendo una formación integral.
+                </p>
+            </motion.div>
+
+            {/* PENSUM */}
+            <motion.div 
+                className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow"
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+            >
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 bg-[#F5A623]/10 rounded-xl">
+                        <BookOpen className="w-6 h-6 text-[#F5A623]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-[#1a237e]">
+                        Actualización del PENSUM
+                    </h3>
+                </div>
+                <p className="text-gray-600">
+                    Impulsaremos la actualización de contenidos programáticos y teóricos 
+                    mediante consultas abiertas con la comunidad estudiantil, garantizando 
+                    una formación vigente y competitiva.
+                </p>
+            </motion.div>
+        </div>
+
+        <div className="text-center mt-12">
+            <p className="text-lg font-medium text-[#1a237e] italic">
+                {`"Porque lideramos con datos y actuamos con precisión"`}
+            </p>
+        </div>
+    </Container>
+</div>
       <Testimonials />
       <Footer />
     </div>

@@ -111,8 +111,8 @@ function ProposalSection() {
             items: [
                 {
                     icon: GraduationCap,
-                    title: "RED DE TUTORES",
-                    description: "Construir una Red de TUTORES para las materias de mayor dificultad"
+                    title: "UNIDAD DE ASESORAMIENTO ACADÉMICO DE LA EECA",
+                    description: "Construir una Red de tutores para las materias de mayor dificultad"
                 },
                 {
                     icon: LibraryBig,
