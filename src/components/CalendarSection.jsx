@@ -86,8 +86,8 @@ function CalendarSection() {
                         <EventCard
                             date="Jueves 7"
                             type="actividad"
-                            title="Actividad Especial"
-                            description="Con El Club de Programación, para presentar la iniciativa a todos los miembros y ver los beneficios"
+                            title="Club de Programación: Reunión Especial"
+                            description="Reunión en la Escuela del Club de Programación para darle presentar a todos los miembros y explicar detalles básicos del programa a utilizar"
                         />
                         {/* Viernes 8 */}
                         <EventCard
@@ -96,13 +96,7 @@ function CalendarSection() {
                             title="Visita a Salones y Campeonato"
                             description="Visita a los Salones de Clases y Campeonato de Voleybol"
                         />
-                        <EventCard
-                            date="Viernes 8"
-                            type="actividad"
-                            title="Actividad P/D"
-                            description="Actividad de Dispersión P/D"
-                        />
-
+       
                     </div>
                 </div>
 
