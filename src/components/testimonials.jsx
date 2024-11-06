@@ -20,7 +20,7 @@ const testimonials = [
   {
     img: '/team-2.jpeg',
     name: 'Andrés Carballo',
-    title: 'Presidente del Centro de Estudiantes',
+    title: 'Candidato al Centro de Estudiantes',
     quote:
         'Comprometido con representar la voz de cada estudiante y trabajar por una EECA más inclusiva y moderna.'
   },
