@@ -37,6 +37,20 @@ const testimonials = [
     title: 'Candidato al Consejo de Escuela',
     quote:
         'Trabajando por una escuela que ofrezca más oportunidades y espacios de desarrollo para todos.'
+  },
+  {
+    img: '/team-5.jpeg',
+    name: 'Beiker Amaya',
+    title: 'Secretaría de asuntos Académicos',
+    quote:
+        'Enfocado en fortalecer la calidad académica y crear puentes entre estudiantes y profesores para una mejor experiencia educativa.'
+  },
+  {
+    img: '/team-6.jpeg',
+    name: 'Carlos Escalona',
+    title: 'Secretaría de Deportes',
+    quote:
+        'Comprometido con promover el deporte y la actividad física como parte integral del desarrollo estudiantil en la EECA.'
   }
 ]
 
