@@ -49,126 +49,132 @@ function Hero() {
 
     return (
         <div className="relative">
-            <Gradient className="absolute inset-2 bottom-0 rounded-4xl ring-1 ring-inset ring-black/5"/>
-            <Container className="relative">
-                <Navbar/>
-                <div className="pb-24 pt-16 sm:pb-32 sm:pt-24 md:pb-48 md:pt-32">
-                    <div className="relative">
-                        <MathLogo/>
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8 }}
-                            className="font-display text-balance text-5xl/[0.9] font-medium tracking-tight text-black sm:text-7xl/[0.8] md:text-8xl/[0.8] max-w-4xl ml-32"
-                        >
-                            Inté<span className="relative">g
-                                <motion.span
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.8, duration: 0.5 }}
-                                    className="absolute -top-4 left-1/2 -translate-x-1/2 text-2xl text-[#F5A623]"
-                                >
-                                    b
-                                </motion.span>
-                                <motion.span
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.8, duration: 0.5 }}
-                                    className="absolute bottom-0 left-1/2 -translate-x-1/2 text-2xl text-[#F5A623]"
-                                >
-                                    a
-                                </motion.span>
-                            </span>rate
-                        </motion.h1>
-                    </div>
-
-                    <motion.p
-                        variants={fadeUpVariants}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ delay: 0.4, duration: 0.6 }}
-                        className="mt-8 max-w-2xl text-xl/7 font-medium text-gray-900 sm:text-2xl/8"
+        <Gradient className="absolute inset-2 bottom-0 rounded-4xl ring-1 ring-inset ring-black/5"/>
+        <Container className="relative">
+            <Navbar/>
+            <div className="pb-16 pt-12 sm:pb-24 sm:pt-20 md:pb-32 md:pt-24">
+                <div className="relative">
+                    <MathLogo/>
+                    {/* Título principal ajustado */}
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="font-display text-balance min-text-4xl text-[clamp(3rem,5vw,5rem)] font-medium tracking-tight text-black sm:min-text-5xl md:min-text-6xl max-w-4xl ml-16 sm:ml-24 md:ml-32"
                     >
-                        Movimiento estudiantil comprometido con el futuro de la
-                        Escuela de Estadística y Ciencias Actuariales de la UCV
-                    </motion.p>
-
-                    {/* Features */}
-                    <motion.div
-                        className="mt-12 flex flex-wrap gap-6"
-                        variants={{
-                            hidden: { opacity: 0 },
-                            visible: {
-                                opacity: 1,
-                                transition: {
-                                    staggerChildren: 0.1
-                                }
-                            }
-                        }}
-                        initial="hidden"
-                        animate="visible"
-                    >
-                        {[
-                            { icon: Users2, text: "Representación Estudiantil" },
-                            { icon: BookOpen, text: "Excelencia Académica" },
-                            { icon: CalendarCheck, text: "Eventos y Actividades" }
-                        ].map((feature, index) => (
-                            <motion.div
-                                key={feature.text}
-                                variants={{
-                                    hidden: { opacity: 0, x: -20 },
-                                    visible: { opacity: 1, x: 0 }
-                                }}
-                                className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full shadow-sm hover:bg-white/80 transition-colors"
+                        Inté<span className="relative">g
+                            <motion.span
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="absolute -top-4 left-1/2 -translate-x-1/2 text-xl sm:text-2xl text-[#F5A623]"
                             >
-                                <feature.icon className="h-5 w-5 text-[#F5A623]"/>
-                                <span className="text-gray-900">{feature.text}</span>
-                            </motion.div>
-                        ))}
-                    </motion.div>
+                                b
+                            </motion.span>
+                            <motion.span
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl sm:text-2xl text-[#F5A623]"
+                            >
+                                a
+                            </motion.span>
+                        </span>rate
+                    </motion.h1>
+                </div>
 
-                    {/* CTA Buttons */}
-                    <motion.div
-                        className="mt-12 flex flex-col sm:flex-row gap-4"
-                        variants={fadeUpVariants}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ delay: 0.8, duration: 0.6 }}
-                    >
+                {/* Subtítulo ajustado */}
+                <motion.p
+                    variants={fadeUpVariants}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                    className="mt-6 max-w-2xl text-base sm:text-lg md:text-xl font-medium text-gray-900 leading-relaxed"
+                >
+                    Movimiento estudiantil comprometido con el futuro de la
+                    Escuela de Estadística y Ciencias Actuariales de la UCV
+                </motion.p>
+
+                {/* Features con texto ajustado */}
+                <motion.div
+                    className="mt-8 sm:mt-12 flex flex-wrap gap-4"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                            opacity: 1,
+                            transition: { staggerChildren: 0.1 }
+                        }
+                    }}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    {[
+                        { icon: Users2, text: "Representación Estudiantil" },
+                        { icon: BookOpen, text: "Excelencia Académica" },
+                        { icon: CalendarCheck, text: "Eventos y Actividades" }
+                    ].map((feature, index) => (
                         <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                            key={feature.text}
+                            variants={{
+                                hidden: { opacity: 0, x: -20 },
+                                visible: { opacity: 1, x: 0 }
+                            }}
+                            className="flex items-center gap-2 bg-white/60 px-3 sm:px-4 py-2 rounded-full shadow-sm hover:bg-white/80 transition-colors"
                         >
-                            <LinkScroll
-                                spy={true}
-                                smooth={true}
-                                offset={-110}
-                                duration={500}
-                                to={"propuesta-1"}>
-                            <Button variant="accent">
+                            <feature.icon className="h-4 w-4 sm:h-5 sm:w-5 text-[#F5A623]"/>
+                            <span className="text-sm sm:text-base text-gray-900">{feature.text}</span>
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+                {/* Botones CTA */}
+                <motion.div
+                    className="mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4"
+                    variants={fadeUpVariants}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: 0.8, duration: 0.6 }}
+                >
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full sm:w-auto"
+                    >
+                        <LinkScroll
+                            spy={true}
+                            smooth={true}
+                            offset={-110}
+                            duration={500}
+                            to={"propuesta-1"}
+                            className="w-full"
+                        >
+                            <Button variant="accent" className="w-full sm:w-auto text-sm sm:text-base py-2 px-4">
                                 Conoce nuestras propuestas
                             </Button>
-                            </LinkScroll>
-                        </motion.div>
-                        <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                        </LinkScroll>
+                    </motion.div>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full sm:w-auto"
+                    >
+                        <LinkScroll
+                            spy={true}
+                            smooth={true}
+                            offset={-110}
+                            duration={900}
+                            to={"calendario"}
+                            className="w-full"
                         >
-                            <LinkScroll
-                                spy={true}
-                                smooth={true}
-                                offset={-110}
-                                duration={900}
-                                to={"calendario"}>
-                            <Button variant="outline">
+                            <Button variant="outline" className="w-full sm:w-auto text-sm sm:text-base py-2 px-4">
                                 Calendario electoral
                             </Button>
-                            </LinkScroll>
-                        </motion.div>
+                        </LinkScroll>
                     </motion.div>
-                </div>
-            </Container>
-        </div>
+                </motion.div>
+            </div>
+        </Container>
+    </div>
     );
 }
 
