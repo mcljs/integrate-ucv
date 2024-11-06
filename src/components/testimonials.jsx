@@ -14,6 +14,7 @@ import useMeasure from 'react-use-measure'
 import { Container } from './container'
 import { Link } from './link'
 import { Heading, Subheading } from './text'
+import { FadeIn } from './FadeIn'
 
 const testimonials = [
   {
@@ -169,7 +170,7 @@ export function Testimonials() {
   }
 
   return (
-    <div id="team" className="overflow-hidden py-32">
+    <FadeIn id="team" className="overflow-hidden py-32">
       <Container>
         <div ref={setReferenceWindowRef} className="text-center">
           <Subheading className="text-[#F5A623] tracking-wider">CONOCE A</Subheading>
@@ -229,6 +230,6 @@ export function Testimonials() {
           </div>
         </div>
       </Container>
-    </div>
+    </FadeIn>
   )
 }

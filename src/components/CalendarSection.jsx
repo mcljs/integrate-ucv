@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container } from '@/components/container';
 import { Calendar, Clock, Users2, MessageSquare, Vote } from 'lucide-react';
+import { FadeIn } from './FadeIn';
 
 function EventCard({ date, title, type, description }) {
     const getBgColor = (type) => {
@@ -35,7 +36,7 @@ function EventCard({ date, title, type, description }) {
 
 function CalendarSection() {
     return (
-        <div id="calendario" className="py-24 bg-gradient-to-b from-white to-gray-50">
+        <FadeIn id="calendario" className="py-24 bg-gradient-to-b from-white to-gray-50">
             <Container>
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -243,7 +244,7 @@ function CalendarSection() {
                     </div>
                 </div>
             </Container>
-        </div>
+        </FadeIn>
     );
 }
 

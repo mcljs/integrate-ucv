@@ -200,11 +200,11 @@ function FeatureSection() {
                     viewport={{ once: true }}
                     variants={fadeUp}
                 >
-                    <Heading as="h1">Conoce nuestras propuestas para la EECA</Heading>
-                    <Lead className="mt-6 max-w-3xl">
-                        Estamos comprometidos con transformar la Escuela de Estadística y
-                        Ciencias Actuariales en un espacio más dinámico, justo y lleno de oportunidades.
-                    </Lead>
+                   <Heading as="h2">Transformando la EECA juntos</Heading>
+                   <Lead className="mt-6 max-w-3xl">
+        Construyendo un espacio donde cada estudiante tenga voz y las herramientas 
+        necesarias para alcanzar su máximo potencial.
+    </Lead>
                 </motion.div>
 
                 <section className="mt-16 grid grid-cols-1 lg:grid-cols-2 lg:gap-12">
@@ -336,14 +336,14 @@ function Team() {
                     viewport={{ once: true }}
                     variants={fadeUp}
                 >
-                    <Subheading className="text-[#F5A623]">Nuestro Equipo</Subheading>
-                    <Heading as="h3" className="mt-2">
-                        Un equipo comprometido con el cambio.
-                    </Heading>
-                    <Lead className="mt-6 max-w-3xl text-gray-600">
-                        Somos estudiantes de la EECA unidos por una visión común: transformar
-                        nuestra escuela en un espacio de excelencia académica y desarrollo integral.
-                    </Lead>
+                 <Subheading className="text-[#F5A623]">Nuestra Identidad</Subheading>
+                 <Heading as="h3" className="mt-2">
+        Unidos por un propósito común
+    </Heading>
+    <Lead className="mt-6 max-w-3xl text-gray-600">
+        Una comunidad de estudiantes comprometidos con la excelencia, 
+        trabajando juntos para crear un impacto positivo en la EECA.
+    </Lead>
                 </motion.div>
 
                 <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2">

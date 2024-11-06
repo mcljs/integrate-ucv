@@ -1,0 +1,10 @@
+# Allow Twitter bot
+User-agent: Twitterbot
+Allow: /
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.gif$
+
+# Allow all other bots
+User-agent: *
+Allow: /
