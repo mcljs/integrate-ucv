@@ -6,7 +6,7 @@ import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
 import { Gradient } from '@/components/gradient'
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView, useSpring, useMotionValue, useTransform } from 'framer-motion';
 import { Navbar } from '@/components/navbar'
 import { Testimonials } from '@/components/testimonials'
 import {Heading, Lead, Subheading} from '@/components/text'
@@ -14,6 +14,7 @@ import {Activity, BookOpen, Calendar, CalendarCheck, GraduationCap, HeartHandsha
 import CalendarSection from "@/components/CalendarSection";
 import { Link as LinkScroll } from "react-scroll";
 import ProposalSection from "@/components/ProposalSection";
+import { useEffect, useRef } from 'react'
 
 
 function MathLogo() {
@@ -171,6 +172,60 @@ function Hero() {
     );
 }
 
+function AnimatedNumber({ start, end, decimals = 0 }) {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, amount: 0.5 });
+    const value = useMotionValue(start);
+    const spring = useSpring(value, { damping: 30, stiffness: 100 });
+    const display = useTransform(spring, (num) => num.toFixed(decimals));
+  
+    useEffect(() => {
+      value.set(isInView ? end : start);
+    }, [start, end, isInView, value]);
+  
+    return <motion.span ref={ref}>{display}</motion.span>;
+  }
+
+
+  function AnimatedText({ text }) {
+    const characters = Array.from(text);
+    
+    return (
+      <motion.span
+        initial="hidden"
+        animate="visible"
+        transition={{ staggerChildren: 0.1 }}
+        className="inline-block"
+      >
+        {characters.map((char, index) => (
+          <motion.span
+            key={index}
+            className="inline-block"
+            variants={{
+              hidden: { 
+                opacity: 0,
+                y: 20,
+                rotateX: -90
+              },
+              visible: {
+                opacity: 1,
+                y: 0,
+                rotateX: 0,
+                transition: {
+                  type: "spring",
+                  damping: 12,
+                  stiffness: 100
+                }
+              }
+            }}
+          >
+            {char === " " ? "\u00A0" : char}
+          </motion.span>
+        ))}
+      </motion.span>
+    );
+  }
+
 function FeatureSection() {
     const fadeUp = {
         hidden: { opacity: 0, y: 20 },
@@ -188,6 +243,25 @@ function FeatureSection() {
             opacity: 1,
             scale: 1,
             transition: { duration: 0.5 }
+        }
+    };
+
+    const counterAnimation = {
+        hidden: { 
+            opacity: 0,
+            scale: 0.5,
+            y: 50
+        },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 10,
+                duration: 0.8
+            }
         }
     };
 
@@ -222,23 +296,23 @@ function FeatureSection() {
                             Nuestra visión
                         </h2>
                         <motion.p
-                            className="mt-6 text-sm/6 text-gray-600"
-                            variants={fadeIn}
-                            transition={{ delay: 0.2 }}
-                        >
-                            La EECA está lista para un cambio significativo. Es el momento
-                            de unirnos y construir juntos la escuela que realmente deseamos.
-                            Tu voz y participación son esenciales para este proceso de transformación.
-                        </motion.p>
-                        <motion.p
-                            className="mt-8 text-sm/6 text-gray-600"
-                            variants={fadeIn}
-                            transition={{ delay: 0.3 }}
-                        >
-                            Intégrate representa la suma de todas las voces estudiantiles,
-                            trabajando unidos para hacer de nuestra escuela un lugar más
-                            dinámico y lleno de oportunidades. ¡Ahora es el momento de actuar!
-                        </motion.p>
+                    className="mt-6 text-lg text-gray-600 leading-relaxed"
+                    variants={fadeIn}
+                    transition={{ delay: 0.2 }}
+                >
+                    La EECA está lista para un cambio significativo. Es el momento
+                    de unirnos y construir juntos la escuela que realmente deseamos.
+                    Tu voz y participación son esenciales para este proceso de transformación.
+                </motion.p>
+                <motion.p
+                    className="mt-8 text-lg text-gray-600 leading-relaxed"
+                    variants={fadeIn}
+                    transition={{ delay: 0.3 }}
+                >
+                    Intégrate representa la suma de todas las voces estudiantiles,
+                    trabajando unidos para hacer de nuestra escuela un lugar más
+                    dinámico y lleno de oportunidades. ¡Ahora es el momento de actuar!
+                </motion.p>
                     </motion.div>
 
                     <motion.div
@@ -273,42 +347,66 @@ function FeatureSection() {
                     </motion.div>
 
                     <motion.div
-                        className="max-lg:mt-16 lg:col-span-1"
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        variants={fadeUp}
-                        transition={{ delay: 0.4 }}
-                    >
-                        <Subheading>Nuestros Objetivos</Subheading>
-                        <hr className="mt-6 border-t border-gray-200" />
-                        <dl className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-                            {[
-                                { label: "Representación", value: "100%" },
-                                { label: "Participación", value: "Activa" },
-                                { label: "Compromiso", value: "Total" },
-                                { label: "Integración", value: "Plena" }
-                            ].map((stat, index) => (
-                                <motion.div
-                                    key={stat.label}
-                                    variants={{
-                                        hidden: { opacity: 0, y: 20 },
-                                        visible: {
-                                            opacity: 1,
-                                            y: 0,
-                                            transition: { delay: 0.5 + (index * 0.1) }
-                                        }
-                                    }}
-                                    className="flex flex-col gap-y-2 border-b border-dotted border-gray-200 pb-4"
-                                >
-                                    <dt className="text-sm/6 text-gray-600">{stat.label}</dt>
-                                    <dd className="order-first text-5xl font-medium tracking-tight text-[#F5A623]">
-                                        {stat.value}
-                                    </dd>
-                                </motion.div>
-                            ))}
-                        </dl>
-                    </motion.div>
+          className="max-lg:mt-16 lg:col-span-1"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <Subheading>Nuestros Objetivos</Subheading>
+          <hr className="mt-6 border-t border-gray-200" />
+          <dl className="mt-6 grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+            {[
+              { 
+                label: "Representación",
+                value: "100",
+                type: "percentage"
+              },
+              { 
+                label: "Participación",
+                value: "Activa",
+                type: "text"
+              },
+              { 
+                label: "Compromiso",
+                value: "Total",
+                type: "text"
+              },
+              { 
+                label: "Integración",
+                value: "Plena",
+                type: "text"
+              }
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ 
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    delay: index * 0.2,
+                    duration: 0.5
+                  }
+                }}
+                viewport={{ once: true }}
+                className="flex flex-col gap-y-3 border-b border-dotted border-gray-200 pb-4 hover:bg-gray-50/50 rounded-lg transition-colors duration-300 p-4"
+              >
+                <dt className="text-lg font-medium text-gray-600">
+                  {stat.label}
+                </dt>
+                <dd className="order-first text-6xl font-bold tracking-tight text-[#F5A623]">
+                  {stat.type === "percentage" ? (
+                    <>
+                      <AnimatedNumber start={0} end={parseInt(stat.value)} />%
+                    </>
+                  ) : (
+                    <AnimatedText text={stat.value} />
+                  )}
+                </dd>
+              </motion.div>
+            ))}
+          </dl>
+        </motion.div>
                 </section>
             </Container>
         </div>
