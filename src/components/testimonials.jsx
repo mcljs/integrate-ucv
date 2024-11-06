@@ -169,7 +169,7 @@ export function Testimonials() {
   }
 
   return (
-    <div className="overflow-hidden py-32">
+    <div id="team" className="overflow-hidden py-32">
       <Container>
         <div ref={setReferenceWindowRef} className="text-center">
           <Subheading className="text-[#F5A623] tracking-wider">CONOCE A</Subheading>

@@ -71,26 +71,39 @@ function SocialLinks() {
 }
 
 function QuickLinks() {
-  const links = [
-    { name: 'Propuestas', href: '/propuestas' },
-    { name: 'Equipo', href: '/equipo' },
-    { name: 'Calendario', href: '/calendario' },
-    { name: 'Contáctanos', href: '/contacto' },
-  ]
+    const links = [
+        { name: 'Propuestas', to: 'propuesta-1' },
+        { name: 'Equipo', to: 'team' },
+        { name: 'Calendario', to: 'calendario' }, // Uses LinkScroll
+        { name: 'Contáctanos', href: 'https://chat.whatsapp.com/D0Xlg5fBlguHgrdxxx5D0Z?fbclid=PAZXh0bgNhZW0CMTEAAaY5WHxZQYm9NpRSj4zAAYSZ4GgNvn4HkApC2zBcyTrW_s56TZ1dteNpWnw_aem_xCW08WHL1zefK6Z456A34g' },
+    ];
 
-  return (
-    <nav className="flex gap-6">
-      {links.map(link => (
-        <Link
-          key={link.name}
-          href={link.href}
-          className="text-sm text-gray-600 hover:text-[#1a237e] transition-colors duration-200"
-        >
-          {link.name}
-        </Link>
-      ))}
-    </nav>
-  )
+    return (
+        <nav className="flex gap-6">
+            {links.map(link => (
+                link.to ? (
+                    <LinkScroll
+                        key={link.name}
+                        to={link.to}
+                        smooth={true}
+                        offset={-70} // Adjust if you have a fixed header
+                        duration={500}
+                        className="text-sm text-gray-600 hover:text-[#1a237e] transition-colors duration-200 cursor-pointer"
+                    >
+                        {link.name}
+                    </LinkScroll>
+                ) : (
+                    <Link
+                        key={link.name}
+                        href={link.href}
+                        className="text-sm text-gray-600 hover:text-[#1a237e] transition-colors duration-200"
+                    >
+                        {link.name}
+                    </Link>
+                )
+            ))}
+        </nav>
+    );
 }
 
 function Copyright() {
