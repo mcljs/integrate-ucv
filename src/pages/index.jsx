@@ -15,6 +15,8 @@ import CalendarSection from "@/components/CalendarSection";
 import { Link as LinkScroll } from "react-scroll";
 import ProposalSection from "@/components/ProposalSection";
 import { useEffect, useRef } from 'react'
+import Image from 'next/image'
+import clsx from 'clsx'
 
 
 function MathLogo() {
@@ -40,6 +42,43 @@ function MathLogo() {
     );
 }
 
+function Photos() {
+    let rotations = ['rotate-2', '-rotate-2', 'rotate-2', 'rotate-2', '-rotate-2']
+  
+    return (
+      <div className="mt-16 sm:mt-20">
+        <div className="-my-4 flex justify-start sm:justify-center gap-4 sm:gap-5 overflow-x-auto sm:overflow-hidden py-4 px-4 sm:px-0 no-scrollbar">
+          {['/grupo.jpeg','/grupo-2.jpeg', '/grupo-5.jpeg', '/grupo-4.jpeg'].map((image, imageIndex) => (
+            <div
+              key={image}
+              className={clsx(
+                'relative aspect-[9/10] w-48 sm:w-52 md:w-72 flex-none overflow-hidden rounded-xl bg-zinc-100 sm:rounded-2xl shadow-md hover:shadow-xl transition-all duration-300',
+                rotations[imageIndex % rotations.length],
+              )}
+            >
+              <img
+                src={image}
+                alt=""
+                sizes="(min-width: 640px) 18rem, 11rem"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
+
+        <style jsx global>{`
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+        `}</style>
+      </div>
+    )
+  }
+
 
 function Hero() {
     const fadeUpVariants = {
@@ -52,6 +91,7 @@ function Hero() {
         <Gradient className="absolute inset-2 bottom-0 rounded-4xl ring-1 ring-inset ring-black/5"/>
         <Container className="relative">
             <Navbar/>
+       
             <div className="pb-16 pt-12 sm:pb-24 sm:pt-20 md:pb-32 md:pt-24">
                 <div className="relative">
                     <MathLogo/>
@@ -172,6 +212,8 @@ function Hero() {
                         </LinkScroll>
                     </motion.div>
                 </motion.div>
+                <Photos />
+              
             </div>
         </Container>
     </div>

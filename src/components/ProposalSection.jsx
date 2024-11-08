@@ -60,7 +60,7 @@ function ProposalSection() {
                 {
                     icon: Users2,
                     title: "EQUIPOS DEPORTIVOS",
-                    description: "Impulsar la formación de equipos en Futbol, Basket, Voleybol, ping pong, etc."
+                    description: "Impulsar la formación de equipos en Futbol, Basket, Voleybol, tenis de mesa, etc."
                 },
                 {
                     icon: Share2,
@@ -91,7 +91,7 @@ function ProposalSection() {
                 {
                     icon: Bell,
                     title: "COMUNICACIÓN ABIERTA",
-                    description: "Canal con los estudiantes y atender problemas"
+                    description: "Canal con los estudiantes para conocer y atender las situaciones"
                 },
                 {
                     icon: FileSpreadsheet,
@@ -121,13 +121,13 @@ function ProposalSection() {
                 },
                 {
                     icon: BookOpen,
-                    title: "ACTUALIZACIÓN PERIÓDICA",
-                    description: "De la carpeta digital (Parciales, Guías)"
+                    title: "BIBLIOTECA DIGITAL ACTUALIZADA",
+                    description: "Incorporación sistemática de libros, guías, materiales de apoyo profesorales, modelos de exámenes parciales y otras evaluaciones asignadas para facilitar tu preparación académica."
                 },
                 {
                     icon: Notebook,
                     title: "BANCO DE CUADERNOS",
-                    description: "Prestados por estudiantes de altos semestre."
+                    description: "Proporcionados por estudiantes"
                 }
             ]
         }

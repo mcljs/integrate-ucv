@@ -108,29 +108,37 @@ function CalendarSection() {
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <EventCard
-                            date="Lunes 11"
-                            type="actividad"
-                            title="Visita a Salones"
-                            description="Visita a los Salones de Clases para la presentación con el estudiantado"
-                        />
+                    <EventCard
+                        date="Lunes 11"
+                        type="actividad"
+                        title="Visita a Salones"
+                        description="Visita a los Salones de Clases para la presentación con el estudiantado"
+                    />
 
-                        {/* Martes 12 */}
-                        <EventCard
-                            date="Martes 12"
-                            type="actividad"
-                            title="Debate Electoral"
-                            description="Debate en la Sala con los candidatos a Presidencia del Centro de Estudiantes"
-                        />
+                    {/* Martes 12 - Debate actualizado */}
+                    <EventCard
+                        date="Martes 12"
+                        type="actividad"
+                        title="Debate Electoral"
+                        description="Debate en la Sala con todos los candidatos a Centro de Estudiantes y Consejo de Escuela. Presentación de propuestas y visión para la EECA."
+                    />
 
-                        {/* Viernes 15 */}
-                        <EventCard
-                            date="Viernes 15"
-                            type="actividad"
-                            title="ELECCIONES"
-                            description="Día oficial de votaciones"
-                        />
-                    </div>
+                    {/* Jueves 14 - Nuevo evento */}
+                    <EventCard
+                        date="Jueves 14"
+                        type="actividad"
+                        title="CIERRE DE CAMPAÑA"
+                        description="Finalización oficial de la campaña electoral. Último día de actividades proselitistas."
+                    />
+
+                    {/* Viernes 15 */}
+                    <EventCard
+                        date="Viernes 15"
+                        type="actividad"
+                        title="ELECCIONES"
+                        description="Día oficial de votaciones para elegir a los representantes estudiantiles."
+                    />
+                </div>
                 </div>
             </Container>
         </FadeIn>

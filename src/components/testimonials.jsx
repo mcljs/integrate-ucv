@@ -27,32 +27,54 @@ const testimonials = [
   {
     img: '/team-3.jpeg',
     name: 'Adrianna Passanisi',
-    title: 'Candidata al Consejo de Escuela',
+    title: 'Candidata al Consejo de Escuela y Secretaría de Asuntos Académicos Adjunta',
     quote:
         'Buscando impulsar iniciativas que mejoren la calidad académica y la experiencia estudiantil en la EECA.'
   },
   {
     img: '/team-4.jpeg',
-    name: 'Stiven Macias',
+    name: 'Roomny Stiven Cadena',
     title: 'Candidato al Consejo de Escuela',
     quote:
         'Trabajando por una escuela que ofrezca más oportunidades y espacios de desarrollo para todos.'
   },
   {
-    img: '/team-5.jpeg',
-    name: 'Beiker Amaya',
-    title: 'Secretaría de asuntos Académicos',
-    quote:
-        'Enfocado en fortalecer la calidad académica y crear puentes entre estudiantes y profesores para una mejor experiencia educativa.'
-  },
-  {
     img: '/team-6.jpeg',
     name: 'Carlos Escalona',
+    title: 'Candidato al Consejo de Escuela y Secretaría de Deportes Adjunta',
+    quote:
+        'Comprometido con promover el deporte y la actividad física como parte integral del desarrollo estudiantil.'
+  },
+  {
+    img: '/team-7.jpeg',
+    name: 'Michelle Toglia',
+    title: 'Secretaría de Derechos Estudiantiles y Candidata al Consejo de Escuela',
+    quote:
+        'Dedicada a defender los derechos de los estudiantes y asegurar una representación efectiva en el consejo.'
+  },
+  {
+    img: '/sofia.jpeg',
+    name: 'Sofia Lopez',
     title: 'Secretaría de Deportes',
     quote:
-        'Comprometido con promover el deporte y la actividad física como parte integral del desarrollo estudiantil en la EECA.'
+        'Impulsando el desarrollo deportivo y promoviendo una vida universitaria activa y saludable.'
+  },
+  {
+    img: '/jesus.jpeg',
+    name: 'Jesús Arellano',
+    title: 'Secretaría de Comunicaciones Adjunta',
+    quote:
+        'Trabajando para mantener una comunicación efectiva y transparente con toda la comunidad estudiantil.'
+  },
+  {
+    img: '/team-5.jpeg',
+    name: 'Beiker Amaya',
+    title: 'Secretaría de Asuntos Académicos',
+    quote:
+        'Enfocado en fortalecer la calidad académica y crear puentes entre estudiantes y profesores.'
   }
-]
+];
+
 
 function TestimonialCard({
   name,
@@ -74,7 +96,7 @@ function TestimonialCard({
     if (rect.left < bounds.left) {
       let diff = bounds.left - rect.left
       let percent = diff / rect.width
-      return Math.max(0.5, 1 - percent)
+      return Math.max(0.5 , 1 - percent)
     } else if (rect.right > bounds.right) {
       let diff = rect.right - bounds.right
       let percent = diff / rect.width
