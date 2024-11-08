@@ -48,9 +48,9 @@ const testimonials = [
   {
     img: '/team-7.jpeg',
     name: 'Michelle Toglia',
-    title: 'Secretaría de Derechos Estudiantiles y Candidata al Consejo de Escuela',
+    title: 'Secretarío de Derechos Estudiantiles y Candidato al Consejo de Escuela',
     quote:
-        'Dedicada a defender los derechos de los estudiantes y asegurar una representación efectiva en el consejo.'
+        'Dedicado a defender los derechos de los estudiantes y asegurar una representación efectiva en el consejo.'
   },
   {
     img: '/sofia.jpeg',
