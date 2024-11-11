@@ -72,6 +72,13 @@ const testimonials = [
     title: 'Secretaría de Asuntos Académicos',
     quote:
         'Enfocado en fortalecer la calidad académica y crear puentes entre estudiantes y profesores.'
+  },
+  {
+    img: '/team-8.jpeg',
+    name: 'Daniel Rodriguez',
+    title: 'Candidato a Vicepresidencia',
+    quote:
+        'Comprometido con el bienestar estudiantil y el desarrollo integral de nuestra comunidad universitaria.'
   }
 ];
 
