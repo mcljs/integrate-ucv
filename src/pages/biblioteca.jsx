@@ -454,7 +454,7 @@ const DigitalLibrary = () => {
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}>
       {filteredMaterials && filteredMaterials.length > 0 ? (
-        <SearchResults results={filteredMaterials} />
+        <SearchResults results={filteredMaterials} handleDownload={handleDownload} />
       ) : (
         <motion.div
           variants={containerVariants}
@@ -691,7 +691,7 @@ const DigitalLibrary = () => {
 export default DigitalLibrary;
 
 
-const SearchResults = ({ results }) => (
+const SearchResults = ({ results,handleDownload }) => (
     <motion.div 
       variants={containerVariants}
       initial="hidden"
@@ -743,6 +743,7 @@ const SearchResults = ({ results }) => (
               {/* Botón de descarga */}
               <div className="flex justify-end sm:justify-start items-center">
                 <button 
+                type="button"
                   onClick={() => handleDownload(material.path)}
                   className="w-full sm:w-auto px-4 py-2 rounded-lg bg-gray-50 hover:bg-blue-50 transition-colors flex items-center justify-center space-x-2 group-hover:border-blue-200"
                   title="Descargar archivo"
