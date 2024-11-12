@@ -411,7 +411,7 @@ const DigitalLibrary = () => {
   };
 
   return (
-    <Container className="mt-12">
+    <Container className="mt-12 mb-20">
       <Navbar />
       <motion.div 
         initial="hidden"
