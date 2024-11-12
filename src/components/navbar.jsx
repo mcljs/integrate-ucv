@@ -4,17 +4,16 @@ import { motion } from 'framer-motion';
 import { Link } from './link';
 import { Link as LinkScroll } from "react-scroll";
 import { PlusGrid, PlusGridItem, PlusGridRow } from './plus-grid';
+import { useRouter } from 'next/router';
 
-const links = [
+const allLinks = [
   { href: '/', label: 'Inicio', type: 'link' },
-  { href: 'propuesta', label: 'Propuesta', type: 'scroll' },
-  { href: 'calendario', label: 'Calendario', type: 'scroll' },
-  { href: 'cambio', label: 'Cambio', type: 'scroll' },
+  { href: 'propuesta', label: 'Propuesta', type: 'scroll', showOnlyOnHome: true },
+  { href: 'calendario', label: 'Calendario', type: 'scroll', showOnlyOnHome: true },
+  { href: 'cambio', label: 'Cambio', type: 'scroll', showOnlyOnHome: true },
   { href: '/biblioteca', label: 'Biblioteca Digital', type: 'link' }
-  // Ejemplo de link normal: { href: '/dashboard', label: 'Dashboard', type: 'link' }
 ];
 
-// Componente personalizado que maneja ambos tipos de enlaces
 const NavLink = ({ href, label, type, className }) => {
   if (type === 'scroll') {
     return (
@@ -37,7 +36,24 @@ const NavLink = ({ href, label, type, className }) => {
   );
 };
 
+function useNavigationLinks() {
+  const router = useRouter();
+  const isHomePage = router.pathname === '/';
+
+  // Filtra los enlaces basados en la página actual
+  const visibleLinks = allLinks.filter(link => {
+    if (link.showOnlyOnHome) {
+      return isHomePage;
+    }
+    return true;
+  });
+
+  return visibleLinks;
+}
+
 function DesktopNav() {
+  const links = useNavigationLinks();
+
   return (
     <nav className="relative hidden lg:flex">
       {links.map(({ href, label, type }) => (
@@ -66,6 +82,8 @@ function MobileNavButton() {
 }
 
 function MobileNav() {
+  const links = useNavigationLinks();
+
   return (
     <DisclosurePanel className="lg:hidden relative z-10">
       <div className="flex flex-col gap-6 py-4">
