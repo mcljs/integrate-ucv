@@ -6,6 +6,7 @@ import { Link as LinkScroll } from "react-scroll";
 import { PlusGrid, PlusGridItem, PlusGridRow } from './plus-grid';
 
 const links = [
+  { href: '/', label: 'Inicio', type: 'link' },
   { href: 'propuesta', label: 'Propuesta', type: 'scroll' },
   { href: 'calendario', label: 'Calendario', type: 'scroll' },
   { href: 'cambio', label: 'Cambio', type: 'scroll' },
