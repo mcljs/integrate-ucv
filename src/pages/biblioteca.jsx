@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, Book, FolderOpen, FileText, Search, Download, Image, FileSpreadsheet } from 'lucide-react';
+import { ChevronRight, Book, FolderOpen, FileText, Search, Download, Image, FileSpreadsheet, FolderOpenDot } from 'lucide-react';
 import { Navbar } from '@/components/navbar';
 import { Container } from '@/components/container';
 import { NextSeo } from 'next-seo';
@@ -634,47 +634,63 @@ const DigitalLibrary = () => {
         )}
 
         {/* Materials List */}
-        {selectedSubject && (
-          <motion.div 
-            ref={materialsRef}
-            variants={containerVariants}
-            className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
-          >
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-              <FileText className="w-6 h-6 mr-2 text-blue-500" />
-              Material Disponible
-            </h2>
-            <div className="space-y-3">
-              {getCurrentMaterials().map((material, index) => {
-                const fileType = getFileType(material.path);
-                const FileIcon = fileType.icon;
-                
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-300 hover:shadow-md transition-all bg-white group"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className={`p-2 ${fileType.bg} rounded-lg transition-colors group-hover:bg-opacity-70`}>
-                        <FileIcon className={`w-6 h-6 ${fileType.color}`} />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-800">{material.name}</h3>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => handleDownload(material.path)}
-                      className="p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                      title="Descargar archivo"
-                    >
-                      <Download className="w-5 h-5 text-gray-500 group-hover:text-blue-500" />
-                    </button>
-                  </div>
-                );
-              })}
+       {/* Materials List */}
+{selectedSubject && (
+  <motion.div 
+    ref={materialsRef}
+    variants={containerVariants}
+    className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
+  >
+    <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+      <FileText className="w-6 h-6 mr-2 text-blue-500" />
+      Material Disponible
+    </h2>
+    <div className="space-y-3">
+      {getCurrentMaterials().length > 0 ? (
+        getCurrentMaterials().map((material, index) => {
+          const fileType = getFileType(material.path);
+          const FileIcon = fileType.icon;
+          
+          return (
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-300 hover:shadow-md transition-all bg-white group"
+            >
+              <div className="flex items-center space-x-4">
+                <div className={`p-2 ${fileType.bg} rounded-lg transition-colors group-hover:bg-opacity-70`}>
+                  <FileIcon className={`w-6 h-6 ${fileType.color}`} />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-800">{material.name}</h3>
+                </div>
+              </div>
+              <button 
+                onClick={() => handleDownload(material.path)}
+                className="p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                title="Descargar archivo"
+              >
+                <Download className="w-5 h-5 text-gray-500 group-hover:text-blue-500" />
+              </button>
             </div>
-          </motion.div>
-        )}
+          );
+        })
+      ) : (
+        <div className="flex flex-col items-center justify-center py-8">
+          <div className="bg-blue-50 p-4 rounded-full mb-4">
+            <FolderOpenDot className="w-12 h-12 text-blue-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">
+            No hay material disponible
+          </h3>
+          <p className="text-gray-500 text-center max-w-md">
+            Estamos trabajando para subir nuevo contenido.
+            Pronto encontrarás aquí material útil para tu aprendizaje.
+          </p>
+        </div>
+      )}
+    </div>
+  </motion.div>
+)}
     </>
   )}
 
