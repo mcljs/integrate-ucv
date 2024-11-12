@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Book, FolderOpen, FileText, Search, Download, Image, FileSpreadsheet } from 'lucide-react';
 import { Navbar } from '@/components/navbar';
 import { Container } from '@/components/container';
+import { NextSeo } from 'next-seo';
 
 // Mantener las funciones de utilidad existentes...
 const normalizeText = (text) => {
@@ -411,6 +412,10 @@ const DigitalLibrary = () => {
 
   return (
     <Container className="mt-12 mb-20">
+           <NextSeo
+        title={`Biblioteca Digital | ${process.env.NEXT_PUBLIC_SITE_TITLE}`}
+  
+      />
       <Navbar />
       <motion.div 
         initial="hidden"
