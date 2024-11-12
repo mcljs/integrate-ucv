@@ -83,8 +83,7 @@ const DigitalLibrary = () => {
           subjects: ["Matemáticas I", "Computación I", "Estadística I"],
           materials: {
             "Matemáticas I": [
-              { path: "/ciclo-basico/1er-semestre/matematicas-i/practica-1.pdf", name: "Práctica 1 - Introducción al Cálculo" },
-              { path: "/ciclo-basico/1er-semestre/matematicas-i/formulario.png", name: "Formulario Unidad 1" }
+
             ]
           }
         },
