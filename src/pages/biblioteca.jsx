@@ -411,7 +411,8 @@ const DigitalLibrary = () => {
   };
 
   return (
-    <Container className="mt-12 mb-20">
+    <div className="bg-[radial-gradient(60%_120%_at_50%_50%,hsla(0,0%,100%,0)_0,rgba(245,166,35,0.15)_100%)] min-h-screen">
+    <Container className="pt-12 pb-20 ">
            <NextSeo
         title={`Biblioteca Digital | ${process.env.NEXT_PUBLIC_SITE_TITLE}`}
   
@@ -701,6 +702,7 @@ const DigitalLibrary = () => {
       
       </motion.div>
     </Container>
+    </div>
   );
 };
 
