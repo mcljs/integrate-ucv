@@ -60,13 +60,6 @@ const testimonials = [
         'Impulsando el desarrollo deportivo y promoviendo una vida universitaria activa y saludable.'
   },
   {
-    img: '/jesus.jpeg',
-    name: 'Jesús Arellano',
-    title: 'Secretaría de Comunicaciones Adjunta',
-    quote:
-        'Trabajando para mantener una comunicación efectiva y transparente con toda la comunidad estudiantil.'
-  },
-  {
     img: '/team-5.jpeg',
     name: 'Beiker Amaya',
     title: 'Secretaría de Asuntos Académicos',
