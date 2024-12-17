@@ -25,6 +25,13 @@ const testimonials = [
         'Comprometido con representar la voz de cada estudiante y trabajar por una EECA más inclusiva y moderna.'
   },
   {
+    img: '/team-8.jpeg',
+    name: 'Daniel Rodriguez',
+    title: 'Vicepresidente del Centro de Estudiantes',
+    quote:
+        'Comprometido con el bienestar estudiantil y el desarrollo integral de nuestra comunidad universitaria.'
+  },
+  {
     img: '/team-3.jpeg',
     name: 'Adrianna Passanisi',
     title: 'Representante al Consejo de Escuela y Secretaría de Asuntos Académicos Adjunta',
@@ -66,13 +73,7 @@ const testimonials = [
     quote:
         'Enfocado en fortalecer la calidad académica y crear puentes entre estudiantes y profesores.'
   },
-  {
-    img: '/team-8.jpeg',
-    name: 'Daniel Rodriguez',
-    title: 'Vicepresidente del Centro de Estudiantes',
-    quote:
-        'Comprometido con el bienestar estudiantil y el desarrollo integral de nuestra comunidad universitaria.'
-  }
+
  ];
 
 
