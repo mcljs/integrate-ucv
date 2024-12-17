@@ -77,17 +77,171 @@ const DigitalLibrary = () => {
   const materialsRef = useRef(null);
 
   const library = {
+   "Propedeutico": {
+  description: "Formacion academica para el 1er Semestre",
+  semesters: {
+    "Material": {
+      subjects: ["Matemáticas", "Estadística"],
+      materials: {
+      "Matemáticas": [
+  // Material 2024
+  { "path": "ciclo-basico/matematica-prope/2024.04.20/logica-proposicional-y-teoria-de-conjuntos.pdf", "name": "Lógica Proposicional y Teoría de Conjuntos" },
+  { "path": "ciclo-basico/matematica-prope/2024.04.20/20240420-logica-y-conjuntos.docx", "name": "Lógica y Conjuntos" },
+  { "path": "ciclo-basico/matematica-prope/2021.04.29-induccion-completa.docx", "name": "Inducción Completa" },
+  { "path": "ciclo-basico/matematica-prope/ecuación-de-euler.docx", "name": "Ecuación de Euler" },
+  { "path": "ciclo-basico/matematica-prope/ejercicio-angel-enrique-v2.docx", "name": "Ejercicio Ángel Enrique V2" },
+
+  // Presentaciones Básicas (M0)
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20200323-2348-funcion-logaritmica-y-exponencial.docx", "name": "Función Logarítmica y Exponencial" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20190721-2355-funcion-lineal.xlsx", "name": "Función Lineal (Excel)" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20191009-0520-funcion-lineal.docx", "name": "Función Lineal" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20191012-1800-trigonometria-figuras.pptx", "name": "Trigonometría - Figuras" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20191012-0000-conjuntos-numericos-(iniciando).docx", "name": "Conjuntos Numéricos" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20191006-2016-polinomios.docx", "name": "Polinomios" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20191006-2119-teoria-de-conjuntos-(iniciando).docx", "name": "Teoría de Conjuntos" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20220410-2140-trigonometria.docx", "name": "Trigonometría" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/identidades-trigonometricas-(ejercicios).docx", "name": "Identidades Trigonométricas - Ejercicios" },
+  { "path": "ciclo-basico/matematica-prope/presentaciones-m0/20191003-2246-polinomios.xlsx", "name": "Polinomios (Excel)" },
+
+  // Material PLE 2021
+  { "path": "ciclo-basico/matematica-prope/ple-2021/propedeutico_semana_1.pdf", "name": "Propedéutico Semana 1" },
+  { "path": "ciclo-basico/matematica-prope/ple-2021/mayarin---operaciones-con-fracciones.pdf", "name": "Operaciones con Fracciones" },
+
+  // Material M0-2019-2
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/teoria-polinomios.pdf", "name": "Teoría Polinomios" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/guia-rapida-polinomios.pdf", "name": "Guía Rápida Polinomios" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/1er-parcial-(nicolas-yanez).pdf", "name": "1er Parcial (Nicolás Yánez)" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/asignacion-#1.docx", "name": "Asignación #1" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/teoría-funciones.pdf", "name": "Teoría Funciones" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/examen-#2-cesar-rodriguez.xlsx", "name": "Examen #2 (César Rodríguez)" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/e-navarro-propedeutico-de-matematica.pdf", "name": "E. Navarro - Propedéutico Matemática" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/álgebra-de-baldor.pdf", "name": "Álgebra de Baldor" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/1ra-evaluacion-grupal-de-matematicas-(8-a-915-am).pdf", "name": "1ra Evaluación Grupal Matemáticas" },
+  { "path": "ciclo-basico/matematica-prope/m0---20192---/guia-rapida-funciones.pdf", "name": "Guía Rápida Funciones" },
+
+  // Evaluaciones M0-2019 y Word/PDF
+  { "path": "ciclo-basico/matematica-prope/evaluaciones-m0/word-y-pdf/1er-parcial-(2019-i).docx", "name": "1er Parcial 2019-I" },
+  { "path": "ciclo-basico/matematica-prope/evaluaciones-m0/word-y-pdf/1er-quiz-matematicas-(2019-i).docx", "name": "1er Quiz Matemáticas 2019-I" },
+  { "path": "ciclo-basico/matematica-prope/evaluaciones-m0/word-y-pdf/2do-parcial-(ricardo-quintero-y-raquel-fernandez)-20021218.docx", "name": "2do Parcial (Ricardo Quintero y Raquel Fernández)" },
+
+  // Fotos Transcritas
+  { "path": "ciclo-basico/matematica-prope/evaluaciones-m0/fotos-transcritas/2do-parcial-(ricardo-quintero-y-raquel-fernandez)-20040114.jpg", "name": "2do Parcial (Foto)" },
+  { "path": "ciclo-basico/matematica-prope/evaluaciones-m0/fotos-transcritas/3er-parcial-(ricardo-quintero-y-raquel-fernandez)-20030708.jpg", "name": "3er Parcial 2003 (Foto)" },
+
+  // Teoría por Tema
+  { "path": "ciclo-basico/matematica-prope/teoria-segun-tema-(otros-materiales)/guia-1.docx", "name": "Guía 1" },
+  { "path": "ciclo-basico/matematica-prope/teoria-segun-tema-(otros-materiales)/cap2---teoria-combinatoria.pdf", "name": "Teoría Combinatoria" }
+],
+        "Estadística": [
+          // Clases 2024 (Material Actual)
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-1.-historia.jpg", "name": "Tema 1 - Historia" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-2.-producción-de-datos-estadísticos.-clase-1-(2023-01-27).pdf", "name": "Tema 2 - Producción de Datos Estadísticos" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-3.-medicion.-clase-1.pdf", "name": "Tema 3.1 - Medición" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-3.-medicion.-clase-2.-escalas-de-medición.pdf", "name": "Tema 3.2 - Escalas de Medición" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-3.-medicion.-clase-3.-porcentaje,-proporción-y-razón.pdf", "name": "Tema 3.3 - Porcentaje, Proporción y Razón" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-4.-medidas-de-posición.-clase-1..pdf", "name": "Tema 4.1 - Medidas de Posición" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-4.-practica-de-medidas-de-tendencia-central.pdf", "name": "Tema 4.2 - Práctica Medidas de Tendencia Central" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-4.-practica-medidas-de-posición.pdf", "name": "Tema 4.3 - Práctica Medidas de Posición" },
+          { "path": "ciclo-basico/estadistica-prope/2024/tema-4.-ejercicio-tipo-examen.pdf", "name": "Tema 4.4 - Ejercicio Tipo Examen" },
+
+          // Clases Zoom 2021-2022
+          { "path": "ciclo-basico/estadistica-prope/2021---(clases-zoom)/ple-i-2022-clase-1---estadística-propedéutico---def.pdf", "name": "Clase 1 - Introducción" },
+          { "path": "ciclo-basico/estadistica-prope/2021---(clases-zoom)/clase-2022.06.25---05-02-media-aritmetica-(editado).pdf", "name": "Media Aritmética" },
+          { "path": "ciclo-basico/estadistica-prope/2021---(clases-zoom)/clase-2022.06.28---05-03-media-geométrica-(editado).pdf", "name": "Media Geométrica" },
+          { "path": "ciclo-basico/estadistica-prope/2021---(clases-zoom)/clase-2022.06.25---05-04-media-armónica-(editado).pdf", "name": "Media Armónica" },
+          { "path": "ciclo-basico/estadistica-prope/2021---(clases-zoom)/clase-2022.07.02---05-05-relaciones-entre-promedios-matemáticos.pdf", "name": "Relaciones entre Promedios" },
+          { "path": "ciclo-basico/estadistica-prope/2021---(clases-zoom)/clase-2022.07.02---06-02-propiedades-de-la-desviación-estándar.pdf", "name": "Propiedades de la Desviación Estándar" },
+          { "path": "ciclo-basico/estadistica-prope/2021---(clases-zoom)/clase-2022.07.16---07-01-momentos.pdf", "name": "Momentos" },
+
+          // Presentaciones 2021
+          { "path": "ciclo-basico/estadistica-prope/2021--(presentaciones)/01-01-introduccion-a-la-estadística---pensamiento-estadístico.pdf", "name": "1.1 - Pensamiento Estadístico" },
+          { "path": "ciclo-basico/estadistica-prope/2021--(presentaciones)/01-02-introduccion-a-la-estadística---la-investigación-estadística.pdf", "name": "1.2 - Investigación Estadística" },
+          { "path": "ciclo-basico/estadistica-prope/2021--(presentaciones)/02-01-produccion-de-datos-estadisticos---conceptos-básicos.pdf", "name": "2.1 - Conceptos Básicos" },
+          { "path": "ciclo-basico/estadistica-prope/2021--(presentaciones)/03-01-medicion---constantes-y-variables,-medición.pdf", "name": "3.1 - Constantes y Variables" },
+          { "path": "ciclo-basico/estadistica-prope/2021--(presentaciones)/03-03-medición---cocientes-estadisticos.pdf", "name": "3.3 - Cocientes Estadísticos" },
+          { "path": "ciclo-basico/estadistica-prope/2021--(presentaciones)/04-01-ordenamiento-de-datos-y-diagrama-de-tallo-y-hojas.pptx.pdf", "name": "4.1 - Ordenamiento de Datos" },
+          { "path": "ciclo-basico/estadistica-prope/2021--(presentaciones)/04-02-cuartiles,-deciles-y-percentiles.pdf", "name": "4.2 - Cuartiles, Deciles y Percentiles" },
+
+          // Prácticas
+          { "path": "ciclo-basico/estadistica-prope/practicas/guía-practica-del-curso-propedéutico-estadística-(2020.04.23).pdf", "name": "Guía Práctica del Curso" },
+          { "path": "ciclo-basico/estadistica-prope/practicas/prof.-beens---tema-3---practica-ple-2021.pdf", "name": "Práctica Tema 3" },
+          { "path": "ciclo-basico/estadistica-prope/practicas/prof.-beens---tema-4---practica-ple-2021.pdf", "name": "Práctica Tema 4" },
+          { "path": "ciclo-basico/estadistica-prope/practicas/prof.-beens---tema-5---ejemplos-ple-2021.pdf", "name": "Ejemplos Tema 5" },
+          { "path": "ciclo-basico/estadistica-prope/practicas/prof.-beens---tema-6---practica-ple-2021.pdf", "name": "Práctica Tema 6" },
+          { "path": "ciclo-basico/estadistica-prope/practicas/prof.-beens---guia-tema-7.pdf", "name": "Guía Tema 7" },
+          { "path": "ciclo-basico/estadistica-prope/practicas/prof.-beens---guia-tema-8.pdf", "name": "Guía Tema 8" },
+
+          // Estudio de Casos
+          { "path": "ciclo-basico/estadistica-prope/estudio-de-casos/20192-estudio-de-caso-(20200328).pdf", "name": "Estudio de Caso 2019-2" },
+          { "path": "ciclo-basico/estadistica-prope/estudio-de-casos/estudio-de-caso-2020.05.18.pdf", "name": "Estudio de Caso 2020" },
+          { "path": "ciclo-basico/estadistica-prope/estudio-de-casos/guia-para-la-elaboracion-de-tabulados-y-graficos.pdf", "name": "Guía de Tabulados y Gráficos" },
+          { "path": "ciclo-basico/estadistica-prope/estudio-de-casos/tema-8-representaciones-gráficas-2020.05.30.pdf", "name": "Representaciones Gráficas" },
+
+          // Leyes y Manuales 2022
+          { "path": "ciclo-basico/estadistica-prope/2022---trabajo---ley-y-manuales/ley-de-la-función-pública-de-estadística.pdf", "name": "Ley de la Función Pública de Estadística" },
+          { "path": "ciclo-basico/estadistica-prope/2022---trabajo---ley-y-manuales/proyecto-de-reglamento-de-la-ley-de-la-función-pública-de-estadística.pdf", "name": "Proyecto de Reglamento" },
+          { "path": "ciclo-basico/estadistica-prope/2022---trabajo---ley-y-manuales/codigo-de-buenas-practicas-estadisticas-europeas.pdf", "name": "Código de Buenas Prácticas Europeas" },
+          { "path": "ciclo-basico/estadistica-prope/2022---trabajo---ley-y-manuales/codigo-de-buenas-practicas-de-las-estadistica-venezolanas.pdf", "name": "Código de Buenas Prácticas Venezolanas" },
+
+          // Material Histórico y Complementario
+          { "path": "ciclo-basico/estadistica-prope/otros-materiales---tema-1/historia-del-razonamiento-estadístico.pdf", "name": "Historia del Razonamiento Estadístico" },
+          { "path": "ciclo-basico/estadistica-prope/otros-materiales---tema-1/la-eeca-en-cifras.pdf", "name": "La EECA en Cifras" },
+          { "path": "ciclo-basico/estadistica-prope/otros-materiales---tema-1/la-eeca-en-cifras-ii.pdf", "name": "La EECA en Cifras II" },
+          { "path": "ciclo-basico/estadistica-prope/otros-materiales---tema-1/material-de-joel-morgado.pdf", "name": "Material de Joel Morgado" },
+          { "path": "ciclo-basico/estadistica-prope/otros-materiales---tema-1/estadística-sistemica-(azorin-poch).pdf", "name": "Estadística Sistémica" },
+          { "path": "ciclo-basico/estadistica-prope/otros-materiales---tema-1/francisco-azorín-poch.pdf", "name": "Francisco Azorín Poch" },
+          { "path": "ciclo-basico/estadistica-prope/la-mentira-en-porcentaje.pdf", "name": "La Mentira en Porcentaje" },
+          { "path": "ciclo-basico/estadistica-prope/mts-y-sp---análisis-descriptivo-bivariante.pdf", "name": "Análisis Descriptivo Bivariante" },
+          { "path": "ciclo-basico/estadistica-prope/excel,-spss-y-r/r---introduccion-a-r.pdf", "name": "Introducción a R" }
+        ]
+      }
+    }
+  }
+},
     "Ciclo Básico": {
       description: "Primeros 5 semestres de formación fundamental",
       semesters: {
-        "1er Semestre": {
-          subjects: ["Matemáticas I", "Computación I", "Estadística I"],
-          materials: {
-            "Matemáticas I": [
-
-            ]
-          }
-        },
+     "1er Semestre": {
+  subjects: ["Matemáticas I", "Computación I", "Estadística I"],
+  materials: {
+    "Matemáticas I": [
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/matematica-i-2º-parcial-(limite).pdf", "name": "2do Parcial - Límites" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/2.5_inecuaciones-1.ppt", "name": "Inecuaciones 1" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/resumen-sucesiones.pdf", "name": "Resumen Sucesiones" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/ejercicios-de-series-y-sucesiones.pdf", "name": "Ejercicios de Series y Sucesiones" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/tabla-de-derivadas.pdf", "name": "Tabla de Derivadas" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/propiedades-de-los-limites.pdf", "name": "Propiedades de los Límites" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/04---lógica-proposicional,-teoremas-y-demostraciones_-manuel-maia-(ucv-2012).pdf", "name": "Lógica Proposicional" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/teoremas-del-vm-y-regla-de-lhopital.pdf", "name": "Teoremas del VM y L'Hôpital" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/inecuaciones.pdf", "name": "Inecuaciones" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/01---lógica,-conjuntos-y-números_carlos-uzcátegui-(ula-2011).pdf", "name": "Lógica, Conjuntos y Números" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/matematica-i-3º-parcial-(derivadas).pdf", "name": "3er Parcial - Derivadas" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/limites-por-definición.pdf", "name": "Límites por Definición" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/inducción-matematica-1.pdf", "name": "Inducción Matemática 1" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/inducción-matematica-2.pdf", "name": "Inducción Matemática 2" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/inducción-matematica-3.pdf", "name": "Inducción Matemática 3" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/teoremas-del-valor-medio.pdf", "name": "Teoremas del Valor Medio" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/funciones-trigonometricas---eder-nuñez.pdf", "name": "Funciones Trigonométricas" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/contenido-programatico-matematicas-i.pdf", "name": "Contenido Programático" },
+      { "path": "ciclo-basico/1er-semestre/matematicas-i/calculo-de-derivadas.pdf", "name": "Cálculo de Derivadas" }
+    ],
+    "Estadística I": [
+      { "path": "ciclo-basico/1er-semestre/estadistica-i/programa-estadistica-1-(julio-2016).doc", "name": "Programa Estadística I" },
+      { "path": "ciclo-basico/1er-semestre/estadistica-i/contenido-programatico-estadistica-i.pdf", "name": "Contenido Programático" }
+    ],
+    "Computación I": [
+      { "path": "ciclo-basico/1er-semestre/computacion-i/contenido-programatico-computacion-i.pdf", "name": "Contenido Programático" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/trabajo-final---carmelis-y-maria.docx", "name": "Trabajo Final" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/computacion-i-seccion-11/programa-de-computacion-i.doc", "name": "Programa de Computación I" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/computacion-i-seccion-11/ejercicios-de-programacion.doc", "name": "Ejercicios de Programación" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/computacion-i-seccion-11/ejercicios.pdf", "name": "Ejercicios" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/computacion-i-seccion-11/ejercicios-resueltos-pseudocodigo.pdf", "name": "Ejercicios Resueltos Pseudocódigo" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/computacion-i-seccion-11/quiz_computacion.docx", "name": "Quiz Computación" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/computacion-i-seccion-11/codigo-fuente-programa-notas.doc", "name": "Código Fuente Programa Notas" },
+      { "path": "ciclo-basico/1er-semestre/computacion-i/computacion-i-seccion-11/teoria-de-programaci_n-en-pseudoc_digo.pdf", "name": "Teoría de Programación en Pseudocódigo" }
+    ]
+  }
+},
         "2do Semestre": {
             "subjects": ["Matemáticas II", "Computación II", "Estadística II"],
             "materials": {
