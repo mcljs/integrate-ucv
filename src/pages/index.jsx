@@ -632,7 +632,6 @@ export default function Home() {
           <Team />
         </div>
           <ProposalSection />
-          <CalendarSection />
       </main>
       <div className="py-24 bg-gradient-to-b from-white to-gray-50">
     <Container>

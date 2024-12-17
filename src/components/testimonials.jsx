@@ -20,35 +20,35 @@ const testimonials = [
   {
     img: '/team-2.jpeg',
     name: 'Andrés Carballo',
-    title: 'Candidato al Centro de Estudiantes',
+    title: 'Presidente del Centro de Estudiantes',
     quote:
         'Comprometido con representar la voz de cada estudiante y trabajar por una EECA más inclusiva y moderna.'
   },
   {
     img: '/team-3.jpeg',
     name: 'Adrianna Passanisi',
-    title: 'Candidata al Consejo de Escuela y Secretaría de Asuntos Académicos Adjunta',
+    title: 'Representante al Consejo de Escuela y Secretaría de Asuntos Académicos Adjunta',
     quote:
-        'Buscando impulsar iniciativas que mejoren la calidad académica y la experiencia estudiantil en la EECA.'
+        'Impulsando iniciativas que mejoren la calidad académica y la experiencia estudiantil en la EECA.'
   },
   {
     img: '/team-4.jpeg',
-    name: 'Roomny Stiven Cadena',
-    title: 'Candidato al Consejo de Escuela',
+    name: 'Roomny Stiven Cadena', 
+    title: 'Representante al Consejo de Escuela',
     quote:
         'Trabajando por una escuela que ofrezca más oportunidades y espacios de desarrollo para todos.'
   },
   {
     img: '/team-6.jpeg',
     name: 'Carlos Escalona',
-    title: 'Candidato al Consejo de Escuela y Secretaría de Deportes Adjunta',
+    title: 'Representante al Consejo de Escuela y Secretaría de Deportes Adjunta',
     quote:
         'Comprometido con promover el deporte y la actividad física como parte integral del desarrollo estudiantil.'
   },
   {
     img: '/team-7.jpeg',
     name: 'Michelle Toglia',
-    title: 'Secretarío de Derechos Estudiantiles y Candidato al Consejo de Escuela',
+    title: 'Secretarío de Derechos Estudiantiles y Representante al Consejo de Escuela',
     quote:
         'Dedicado a defender los derechos de los estudiantes y asegurar una representación efectiva en el consejo.'
   },
@@ -69,11 +69,11 @@ const testimonials = [
   {
     img: '/team-8.jpeg',
     name: 'Daniel Rodriguez',
-    title: 'Candidato a Vicepresidencia',
+    title: 'Vicepresidente del Centro de Estudiantes',
     quote:
         'Comprometido con el bienestar estudiantil y el desarrollo integral de nuestra comunidad universitaria.'
   }
-];
+ ];
 
 
 function TestimonialCard({
