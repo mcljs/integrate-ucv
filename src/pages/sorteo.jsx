@@ -5,6 +5,7 @@ import { NextSeo } from 'next-seo';
 import { Navbar } from '@/components/navbar';
 import { Container } from '@/components/container';
 import toast, { Toaster } from 'react-hot-toast';
+import apiService from "@/services/apiService";
 
 const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(initialValue);
@@ -63,6 +64,7 @@ const WorkshopRegistration = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [timeLeft, setTimeLeft] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [isRegistered, setIsRegistered] = useLocalStorage('workshopRegistered', false);
 
   useEffect(() => {
     setMounted(true);
@@ -165,6 +167,22 @@ const WorkshopRegistration = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast.dismiss(loadingToast);
+
+      const profileData = {
+        name: formData.name,
+        lastName: "integrate-1",
+        email: formData.email.trim() ,
+        phone: formData.phone,
+        wallet: formData.studentId,
+        userName: formData.studentId,
+        instagram: "integrate-1",
+        country: "integrate-1",
+      };
+
+      await apiService.post('/user/register', profileData);
+      setIsRegistered(true); 
+
+
       toast.success('¡Registro completado con éxito! 🎉 Buena suerte en el sorteo.');
       setFormData(initialFormData);
     } catch (error) {
@@ -172,6 +190,10 @@ const WorkshopRegistration = () => {
       toast.error(error.message);
     }
   };
+
+
+
+
 
   const TaskCard = ({ title, description, icon: Icon, completed, link, onComplete, isLoading, task }) => {
     const [shareCount, setShareCount] = useLocalStorage(`${task}_shares`, 0);
@@ -325,6 +347,7 @@ const WorkshopRegistration = () => {
       <Container>
         <NextSeo title={`Sorteos | ${process.env.NEXT_PUBLIC_SITE_TITLE}`} />
         <Navbar />
+
         <div className="max-w-3xl mx-auto px-4 py-8">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-[#1a237e] mb-4">
@@ -479,12 +502,34 @@ const WorkshopRegistration = () => {
                     maxLength={11}
                   />
                 </div>
-                <button 
-                  type="submit"
-                  className="w-full bg-black hover:bg-[#E69612] text-white py-2 px-4 rounded-lg transition-colors duration-200"
-                >
-                  Registrarme para el sorteo
-                </button>
+                {isRegistered ? (
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <svg 
+                      className="w-12 h-12 text-green-500 mx-auto mb-4" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth="2" 
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-green-800 mb-2">¡Registro Completado!</h3>
+                    <p className="text-sm text-green-600">
+                      Te notificaremos por correo electrónico si resultas ganador del sorteo.
+                    </p>
+                  </div>
+                ) : (
+                  <button 
+                    type="submit"
+                    className="w-full bg-black hover:bg-[#E69612] text-white py-2 px-4 rounded-lg transition-colors duration-200"
+                  >
+                    Registrarme para el sorteo
+                  </button>
+                )}
               </form>
             </motion.div>
           )}
