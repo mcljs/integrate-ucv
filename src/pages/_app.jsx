@@ -2,6 +2,7 @@ import '@/styles/tailwind.css';
 import { DefaultSeo } from 'next-seo';
 import config from '../config';
 import Head from 'next/head';
+import { Toaster } from 'react-hot-toast';
 
 function MyApp({ Component, pageProps }) {
 
@@ -52,6 +53,10 @@ function MyApp({ Component, pageProps }) {
 
     return (
         <>
+        <Toaster
+  position="top-center"
+  reverseOrder={false}
+/>
             <SchemaMarkup />
             <DefaultSeo {...config} />
             <Component {...pageProps} />
