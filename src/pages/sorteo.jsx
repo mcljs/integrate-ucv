@@ -217,31 +217,28 @@ const WorkshopRegistration = () => {
         transition={{ duration: 0.2 }}
       >
         <div className={`w-full rounded-xl border ${completed ? 'bg-green-50' : 'bg-white'} shadow-sm hover:shadow-md transition-shadow duration-200`}>
-          <div className="p-6">
-            <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-xl ${completed ? 'bg-green-100' : 'bg-orange-100'}`}>
+          <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className={`p-3 rounded-xl ${completed ? 'bg-green-100' : 'bg-orange-100'} flex-shrink-0`}>
                 <Icon className={`w-6 h-6 ${completed ? 'text-green-600' : 'text-[#F5A623]'}`} />
               </div>
               
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-                <p className="text-sm text-gray-600 mt-1">{description}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-gray-900 break-words">{title}</h3>
+                <p className="text-sm text-gray-600 mt-1 break-words">{description}</p>
                 
-                { isInviteTask && !completed && (
+                {isInviteTask && !completed && (
                   <div className="mt-3">
                     <div className="flex flex-wrap gap-2 mb-3">
-                        {task !== 'invitedWhatsAppFriends' &&(
- <button 
- onClick={handleShare}
- className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-2"
->
- <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
- </svg>
- Compartir enlace ({shareCount}/10)
-</button>
-                        )}
-                     
+                      <button 
+                        onClick={handleShare}
+                        className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        Compartir enlace ({shareCount}/10)
+                      </button>
 
                       {task === 'invitedWhatsAppFriends' && (
                         <a 
@@ -268,7 +265,7 @@ const WorkshopRegistration = () => {
                     </div>
 
                     <div className="bg-blue-50 p-3 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                         <p className="text-sm text-gray-600">
                           {shareCount >= 10 
                             ? '¡Ya puedes verificar esta tarea!'
@@ -288,14 +285,14 @@ const WorkshopRegistration = () => {
                 )}
               </div>
 
-              <div>
+              <div className="sm:ml-2 mt-4 sm:mt-0 flex-shrink-0 w-full sm:w-auto">
                 {completed ? (
-                  <span className="text-green-600 text-sm font-medium">Completado ✓</span>
+                  <span className="text-green-600 text-sm font-medium block text-center sm:text-left">Completado ✓</span>
                 ) : (
                   <button 
                     onClick={() => onComplete(task, link)}
                     disabled={isLoading || (isInviteTask && shareCount < 10)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200
+                    className={`w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200
                       ${isLoading || (isInviteTask && shareCount < 10)
                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         : 'bg-black hover:bg-[#E69612] text-white'
