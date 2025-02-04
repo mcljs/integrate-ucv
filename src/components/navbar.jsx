@@ -11,7 +11,8 @@ const allLinks = [
   { href: 'propuesta', label: 'Propuesta', type: 'scroll', showOnlyOnHome: true },
   { href: 'calendario', label: 'Calendario', type: 'scroll', showOnlyOnHome: true },
   { href: 'cambio', label: 'Cambio', type: 'scroll', showOnlyOnHome: true },
-  { href: '/biblioteca', label: 'Biblioteca Digital', type: 'link' }
+  { href: '/biblioteca', label: 'Biblioteca Digital', type: 'link' },
+  { href: '/sorteo', label: 'Sorteo', type: 'link' }
 ];
 
 const NavLink = ({ href, label, type, className }) => {
