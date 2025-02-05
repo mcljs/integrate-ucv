@@ -45,10 +45,10 @@ const useLocalStorage = (key, initialValue) => {
 const WorkshopRegistration = () => {
   const initialTasks = {
     followedInstagram: false,
-    invitedInstagramFriends: false,
+    invitedInstagramFriends: true,
     joinedWhatsApp: false,
-    invitedWhatsAppFriends: false,
-    likedPost: false
+    invitedWhatsAppFriends: true,
+    likedPost: true
   };
 
   const initialFormData = {
@@ -390,18 +390,7 @@ const WorkshopRegistration = () => {
                 timeLeft={timeLeft}
               />
 
-              <TaskCard
-                title="Invita a tus compañeros a Instagram"
-                description="Invita a 10 estudiantes a seguir nuestra cuenta de Instagram"
-                icon={Users}
-                completed={tasks.invitedInstagramFriends}
-                link="https://www.instagram.com/integrate_ucv/"
-                onComplete={handleTaskComplete}
-                isLoading={loading.invitedInstagramFriends}
-                task="invitedInstagramFriends"
-                timeLeft={timeLeft}
-              />
-
+        
               <TaskCard
                 title="Únete a nuestra comunidad de WhatsApp"
                 description="Forma parte de nuestra comunidad de estudiantes en WhatsApp"
@@ -414,29 +403,7 @@ const WorkshopRegistration = () => {
                 timeLeft={timeLeft}
               />
 
-              <TaskCard
-                title="Invita a tus compañeros a WhatsApp"
-                description="Invita a 10 estudiantes a unirse a nuestra comunidad de WhatsApp"
-                icon={Users}
-                completed={tasks.invitedWhatsAppFriends}
-                link="https://chat.whatsapp.com/D0Xlg5fBlguHgrdxxx5D0Z"
-                onComplete={handleTaskComplete}
-                isLoading={loading.invitedWhatsAppFriends}
-                task="invitedWhatsAppFriends"
-                timeLeft={timeLeft}
-              />
-
-              <TaskCard
-                title="Dale me gusta a nuestra publicación"
-                description="Muestra tu apoyo dando like a nuestra última publicación"
-                icon={ThumbsUp}
-                completed={tasks.likedPost}
-                link="https://www.instagram.com/p/DCc2-vIhdj6/?img_index=1"
-                onComplete={handleTaskComplete}
-                isLoading={loading.likedPost}
-                task="likedPost"
-                timeLeft={timeLeft}
-              />
+           
             </div>
           ) : (
             <motion.div
