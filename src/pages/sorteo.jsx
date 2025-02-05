@@ -164,7 +164,7 @@ const WorkshopRegistration = () => {
         throw new Error(validationError.message);
       }
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast.dismiss(loadingToast);
 
