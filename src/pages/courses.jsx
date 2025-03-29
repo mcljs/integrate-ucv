@@ -55,7 +55,7 @@ export default function Home() {
             <h3 className="font-medium text-amber-800">Próximamente más contenido</h3>
             <p className="text-amber-700 text-sm mt-1">
               Estamos trabajando en ampliar el contenido del curso. Las lecciones se irán habilitando progresivamente.
-              Si tienes dudas o sugerencias, no dudes en contactar al Centro de Estudiantes.
+              Si tienes dudas o sugerencias, no dudes en contactar a nuestro equipo.
             </p>
           </div>
         </div>
@@ -105,10 +105,7 @@ function CourseItem({ number, title, description, icon, href, isAvailable }) {
               Ejercicio
             </Link>
 
-            <Link href={`${href}/final`} className="px-4 py-2 rounded-lg flex items-center text-gray-700 hover:text-[#F5A623] hover:bg-[#F5A623]/5 transition-colors">
-              <FileText className="h-5 w-5 mr-2 text-[#F5A623]" />
-              Versión Final
-            </Link>
+
           </>
         ) : (
           <div className="bg-gray-100 text-gray-500 px-4 py-2 rounded-lg flex items-center opacity-80">

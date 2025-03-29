@@ -207,7 +207,7 @@ export default function CoursePage() {
             <div className="mb-4">
             <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 flex items-center">
                   <HelpCircle className="h-5 w-5 mr-3 text-[#F5A623]" />
-                  <span>¿Necesitas ayuda? Comunícate con nuestro grupo de WhatsApp del Centro de Estudiantes: <a href="https://wa.me/grouplink" className="text-[#F5A623] hover:underline">Unirse al grupo</a></span>
+                  <span>¿Necesitas ayuda? Comunícate con nuestro grupo de WhatsApp del Centro de Estudiantes: <a href="https://chat.whatsapp.com/D0Xlg5fBlguHgrdxxx5D0Z" className="text-[#F5A623] hover:underline">Unirse al grupo</a></span>
                 </div>
             </div>
             
