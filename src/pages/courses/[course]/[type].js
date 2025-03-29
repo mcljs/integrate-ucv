@@ -250,21 +250,7 @@ export default function CoursePage() {
                       </div>
                     )}
                     
-                    <p className="text-sm text-gray-600">Producción final:</p>
-                    <ul className="list-disc pl-5 mt-2 space-y-2">
-                      <li>
-                        <Link href={`/courses/${course}/exercise`} className="text-[#F5A623] hover:text-[#F7B844] hover:underline flex items-center">
-                          <Code className="h-4 w-4 mr-1" />
-                          Ejercicio
-                        </Link>
-                      </li>
-                      <li>
-                        <Link href={`/courses/${course}/final`} className="text-[#F5A623] hover:text-[#F7B844] hover:underline flex items-center">
-                          <FileText className="h-4 w-4 mr-1" />
-                          Final
-                        </Link>
-                      </li>
-                    </ul>
+                  
                   </div>
                 )}
               </div>
