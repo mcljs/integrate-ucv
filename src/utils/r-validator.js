@@ -15,6 +15,7 @@ export function analyzeRCode(code, patterns = {}) {
       hasMeanCalculation: false,
       hasCorrectValues: false,
       hasCorrectVariableNames: false,
+      hasTypeConversion: false,
       syntaxErrors: []
     };
   
@@ -40,6 +41,12 @@ export function analyzeRCode(code, patterns = {}) {
     if (patterns.variableNames) {
       const varPattern = new RegExp(patterns.variableNames);
       results.hasCorrectVariableNames = varPattern.test(code);
+    }
+    
+    // Verificar conversión de tipos
+    if (patterns.typeConversion) {
+      const conversionPattern = new RegExp(patterns.typeConversion);
+      results.hasTypeConversion = conversionPattern.test(code);
     }
   
     // Verificar errores comunes de sintaxis
@@ -78,7 +85,8 @@ export function analyzeRCode(code, patterns = {}) {
   
     // Verificar asignación correcta
     if (!code.includes('<-') && !code.includes('=')) {
-      if (code.includes('edades') || code.includes('media')) {
+      if (code.includes('valores') || code.includes('valores_texto') || 
+          code.includes('edades') || code.includes('media')) {
         results.syntaxErrors.push({
           type: 'error',
           message: 'Falta el operador de asignación. Usa "<-" o "=" para asignar valores a variables.'
@@ -91,6 +99,14 @@ export function analyzeRCode(code, patterns = {}) {
       results.syntaxErrors.push({
         type: 'error',
         message: 'La función "mean" necesita paréntesis. Usa mean() para calcular la media.'
+      });
+    }
+    
+    // Verificar nombre de función as.character()
+    if (code.includes('as.character') && !code.includes('as.character(')) {
+      results.syntaxErrors.push({
+        type: 'error',
+        message: 'La función "as.character" necesita paréntesis. Usa as.character() para la conversión.'
       });
     }
   }
@@ -166,11 +182,58 @@ export function analyzeRCode(code, patterns = {}) {
         details: analysis
       };
     }
+    
+    // Para el ejercicio de conversión de tipos de datos
+    else if (exercise.type === 'data_conversion') {
+      const analysis = analyzeRCode(code, {
+        vectorCreation: 'valores\\s*<-\\s*(c\\(\\s*1\\s*,\\s*2\\s*,\\s*3\\s*,\\s*4\\s*,\\s*5\\s*\\)|1:5)',
+        typeConversion: 'valores_texto\\s*<-\\s*as\\.character\\(\\s*valores\\s*\\)',
+        variableNames: '(valores|valores_texto)'
+      });
+      
+      // Verificar errores de sintaxis
+      if (analysis.syntaxErrors.length > 0) {
+        return {
+          output: null,
+          success: false,
+          error: analysis.syntaxErrors[0].message,
+          details: analysis
+        };
+      }
+      
+      // Verificar si falta la creación del vector
+      if (!analysis.hasVectorCreation) {
+        return {
+          output: null,
+          success: false,
+          error: "No se ha creado el vector 'valores' correctamente. Debes crear un vector con los números del 1 al 5.",
+          details: analysis
+        };
+      }
+      
+      // Verificar si falta la conversión de tipos
+      if (!analysis.hasTypeConversion) {
+        return {
+          output: null,
+          success: false,
+          error: "No se ha convertido el vector a tipo caracter correctamente. Usa la función as.character().",
+          details: analysis
+        };
+      }
+      
+      // Todo está correcto, devolver el resultado esperado
+      return {
+        output: exercise.expectedOutput,
+        success: true,
+        details: analysis
+      };
+    }
   
-    // Para otros tipos de ejercicios
+    // Para otros tipos de ejercicios (esto sería un fallback genérico)
     return {
-      output: "Simulación genérica: " + exercise.expectedOutput,
-      success: true
+      output: "Error: Tipo de ejercicio no soportado para validación automática",
+      success: false,
+      error: "Este tipo de ejercicio no tiene validaciones específicas implementadas."
     };
   }
   
