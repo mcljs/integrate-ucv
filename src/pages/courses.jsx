@@ -32,7 +32,7 @@ export default function Home() {
 
         <div className="my-10 text-center">
           <h2 className="text-4xl font-bold mb-2 text-gray-800">R Fundamentals</h2>
-          <p className="text-gray-600">Una introducción práctica al lenguaje de programación R para estudiantes de Estadística</p>
+          <p className="text-gray-600">Una introducción práctica al lenguaje de programación R para estudiantes de nuestra escuela</p>
         </div>
 
         <div className="space-y-4">
