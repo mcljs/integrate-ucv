@@ -1,5 +1,4 @@
-// Si cambiamos de pestaña, actualizar estados
-
+// pages/courses/[course]/[type].js
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -59,12 +58,6 @@ export default function CoursePage() {
     }
   }, [feedback, output]);
 
-  useEffect(() => {
-    if (activeTab === 'final') {
-      setShowSolution(false);
-    }
-  }, [activeTab]);// pages/courses/[course]/[type].js
-
   if (!lessonData) {
     return (
       <div className="min-h-screen bg-[radial-gradient(60%_120%_at_50%_50%,hsla(0,0%,100%,0)_0,rgba(245,166,35,0.15)_100%)] flex items-center justify-center">
@@ -76,6 +69,32 @@ export default function CoursePage() {
   const currentExercise = type === 'exercise' && lessonData.exercises && lessonData.exercises.length > 0
     ? lessonData.exercises[currentExerciseIndex]
     : null;
+    
+  // Determinar el número de ejercicio basado en el id
+  const getExerciseNumber = () => {
+    if (currentExercise && currentExercise.id) {
+      // Si el id tiene un número (por ejemplo "vector-mean" no tiene, pero "data-type-2" sí tendría)
+      const match = currentExercise.id.match(/(\d+)$/);
+      if (match) {
+        return parseInt(match[1]);
+      }
+      
+      // Si el id está en el formato "id-N" donde N es un número
+      const parts = currentExercise.id.split('-');
+      if (parts.length > 1 && !isNaN(parts[parts.length - 1])) {
+        return parseInt(parts[parts.length - 1]);
+      }
+    }
+    
+    // Si no hay número en el id, usar el curso para inferir
+    // Por ejemplo, si el curso es "data-types" y el id es el segundo ejercicio
+    if (course === 'data-types') {
+      return 2;  // Asumir que es el ejercicio 2 para el curso "data-types"
+    }
+    
+    // Por defecto, para el curso "intro-r", es el ejercicio 1
+    return 1;
+  };
 
   const executeCode = () => {
     if (!currentExercise) return;
@@ -186,14 +205,10 @@ export default function CoursePage() {
             <h1 className="text-3xl font-bold mb-2 text-gray-800">{lessonData.title}</h1>
             
             <div className="mb-4">
-
-              <div className="bg-white p-4 ">
-              
-                <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 flex items-center">
-                  <HelpCircle className="h-5 w-5 mr-2 text-[#F5A623]" />
+            <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 flex items-center">
+                  <HelpCircle className="h-5 w-5 mr-3 text-[#F5A623]" />
                   <span>¿Necesitas ayuda? Comunícate con nuestro grupo de WhatsApp del Centro de Estudiantes: <a href="https://wa.me/grouplink" className="text-[#F5A623] hover:underline">Unirse al grupo</a></span>
                 </div>
-              </div>
             </div>
             
             <div className="mt-8">
@@ -214,7 +229,7 @@ export default function CoursePage() {
               <div className="mt-8">
                 <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800">
                   <Code className="h-5 w-5 mr-2 text-[#F5A623]" />
-                  Ejercicio {currentExerciseIndex + 1}
+                  Ejercicio {getExerciseNumber()}
                   {currentExercise && currentExercise.difficulty && (
                     <span className="ml-2 text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                       {currentExercise.difficulty}
@@ -300,7 +315,7 @@ export default function CoursePage() {
           </div>
 
           {/* Code editor / Output */}
-          <div className="w-full lg:w-1/2 flex flex-col">
+          <div className="w-full lg:w-1/2 lg:h-[720px] flex flex-col">
             <div className="flex items-center px-4 py-3 border-b border-gray-200 bg-white rounded-t-xl shadow-sm">
               <div 
                 className={`px-3 py-2 mx-1 cursor-pointer ${activeTab === 'exercise' ? 'border-b-2 border-[#F5A623] text-[#F5A623]' : 'text-gray-600'}`}
@@ -308,16 +323,7 @@ export default function CoursePage() {
               >
                 <span className="flex items-center">
                   <Code className="h-4 w-4 mr-1" />
-                  Ejercicio {type === 'exercise' && currentExerciseIndex + 1}
-                </span>
-              </div>
-              <div 
-                className={`px-3 py-2 mx-1 cursor-pointer ${activeTab === 'final' ? 'border-b-2 border-[#F5A623] text-[#F5A623]' : 'text-gray-600'}`}
-                onClick={() => handleTabChange('final')}
-              >
-                <span className="flex items-center">
-                  <FileText className="h-4 w-4 mr-1" />
-                  Final
+                  Ejercicio {getExerciseNumber()}
                 </span>
               </div>
               
@@ -335,8 +341,8 @@ export default function CoursePage() {
             </div>
 
             {activeTab === 'exercise' && type === 'exercise' && (
-              <div className="flex-grow flex flex-col bg-white rounded-b-xl shadow-sm">
-                <div className="flex-grow bg-gray-50 font-mono text-sm p-4 overflow-y-auto border border-gray-200 border-t-0">
+              <div className="flex-grow flex flex-col bg-white rounded-xl shadow-sm">
+                <div className="flex-grow bg-gray-50 font-mono text-sm p-4 overflow-y-auto border border-gray-200">
                   {!showSolution ? (
                     <textarea
                       className="w-full h-full bg-transparent outline-none text-gray-700 resize-none"
@@ -413,22 +419,24 @@ export default function CoursePage() {
 
             {activeTab === 'final' && (
               <div className="flex-grow flex flex-col items-center justify-center bg-white rounded-b-xl p-4 shadow-sm">
-                <div className="text-center max-w-md w-full">
-                  <img 
-                    src="/r-logo.png" 
-                    alt="R Logo" 
-                    className="w-16 h-16 mx-auto mb-4 opacity-50"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "https://www.r-project.org/logo/Rlogo.png";
-                    }}
-                  />
-                  <p className="text-lg mb-4 text-gray-800 font-medium">Versión final del proyecto</p>
+                <div className="w-full max-w-xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-medium text-gray-800">Análisis del Ejercicio</h3>
+                    <img 
+                      src="/r-logo.png" 
+                      alt="R Logo" 
+                      className="w-10 h-10 opacity-50"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://www.r-project.org/logo/Rlogo.png";
+                      }}
+                    />
+                  </div>
                   
                   {!showOutput ? (
-                    <>
+                    <div className="text-center py-8">
                       <p className="text-gray-600 mb-6">
-                        Aquí se mostrará la versión final de tu código cuando completes el ejercicio.
+                        Primero debes completar exitosamente el ejercicio para ver el análisis detallado.
                       </p>
                       <button 
                         className="px-4 py-2 bg-[#F5A623] text-white rounded-lg hover:bg-[#F7B844] transition-colors inline-flex items-center"
@@ -437,29 +445,86 @@ export default function CoursePage() {
                         <Code className="h-4 w-4 mr-2" />
                         Ir al ejercicio
                       </button>
-                    </>
+                    </div>
                   ) : (
-                    <div className="bg-gray-50 p-4 border border-gray-200 rounded-lg text-left">
-                      <h3 className="font-medium text-gray-700 mb-2">Tu solución:</h3>
-                      <div className="bg-white p-3 rounded border border-gray-200">
-                        <CodeSolution code={currentExercise.solution} isVisible={true} />
+                    <div className="space-y-6">
+                      {/* Conceptos clave */}
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                          <BookOpen className="h-4 w-4 mr-2" />
+                          Conceptos clave de este ejercicio
+                        </h4>
+                        <ul className="text-blue-700 text-sm space-y-2">
+                          {currentExercise.type === 'mean_calculation' && (
+                            <>
+                              <li className="flex items-start">
+                                <span className="h-4 w-4 bg-blue-200 rounded-full flex items-center justify-center text-xs mr-2 mt-0.5">•</span>
+                                <span><strong>Vectores</strong>: Secuencias de valores del mismo tipo almacenados en una sola variable.</span>
+                              </li>
+                              <li className="flex items-start">
+                                <span className="h-4 w-4 bg-blue-200 rounded-full flex items-center justify-center text-xs mr-2 mt-0.5">•</span>
+                                <span><strong>Función c()</strong>: Permite crear vectores combinando varios valores.</span>
+                              </li>
+                              <li className="flex items-start">
+                                <span className="h-4 w-4 bg-blue-200 rounded-full flex items-center justify-center text-xs mr-2 mt-0.5">•</span>
+                                <span><strong>Función mean()</strong>: Calcula la media aritmética de los valores en un vector numérico.</span>
+                              </li>
+                            </>
+                          )}
+                        </ul>
                       </div>
                       
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <p className="text-sm text-gray-600 mb-2">Resultado:</p>
-                        <p className="font-mono bg-white p-2 rounded border border-gray-200 text-green-600">{output}</p>
+                      {/* Explicación de la solución */}
+                      <div>
+                        <h4 className="font-medium text-gray-800 mb-3">Explicación paso a paso:</h4>
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                          {currentExercise.type === 'mean_calculation' && (
+                            <div className="space-y-3 text-sm text-gray-700">
+                              <p>1. <strong>Crear el vector</strong>: Usamos la función <code className="bg-gray-100 px-1 py-0.5 rounded">c()</code> para combinar los valores numéricos en un vector llamado <code className="bg-gray-100 px-1 py-0.5 rounded">edades</code>.</p>
+                              <div className="pl-4 border-l-2 border-[#F5A623]/20">
+                                <CodeSolution code="edades <- c(23, 45, 67, 32, 19, 21, 30)" isVisible={true} />
+                              </div>
+                              <p>2. <strong>Calcular la media</strong>: Aplicamos la función <code className="bg-gray-100 px-1 py-0.5 rounded">mean()</code> al vector para obtener el promedio de los valores.</p>
+                              <div className="pl-4 border-l-2 border-[#F5A623]/20">
+                                <CodeSolution code="media_edades <- mean(edades)" isVisible={true} />
+                              </div>
+                              <p>3. <strong>Resultado</strong>: La media de estos valores es <code className="bg-gray-100 px-1 py-0.5 rounded">33.85714</code>, que se calcula sumando todos los valores (217) y dividiendo por la cantidad de elementos (7).</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
-                      <div className="mt-4 text-center">
+                      {/* Aplicaciones prácticas */}
+                      <div>
+                        <h4 className="font-medium text-gray-800 mb-3">Aplicaciones prácticas:</h4>
+                        <div className="bg-green-50 p-4 rounded-lg border border-green-100 text-green-800 text-sm">
+                          <p className="mb-2">En estadística y análisis de datos, calcular medidas de tendencia central como la media es fundamental para:</p>
+                          <ul className="list-disc pl-5 space-y-1 text-green-700">
+                            <li>Describir conjuntos de datos</li>
+                            <li>Comparar diferentes grupos o muestras</li>
+                            <li>Detectar patrones y tendencias</li>
+                            <li>Realizar pruebas estadísticas más avanzadas</li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      {/* Desafío adicional */}
+                      <div className="bg-[#F5A623]/5 p-4 rounded-lg border border-[#F5A623]/20">
+                        <h4 className="font-medium text-[#F5A623] mb-3 flex items-center">
+                          <Award className="h-4 w-4 mr-2" />
+                          Desafío adicional
+                        </h4>
+                        <p className="text-gray-700 text-sm mb-3">Intenta modificar el código para calcular también la mediana y la desviación estándar de las edades.</p>
+                        <p className="text-gray-600 text-xs">Pista: Puedes usar las funciones <code className="bg-gray-100 px-1 py-0.5 rounded">median()</code> y <code className="bg-gray-100 px-1 py-0.5 rounded">sd()</code> en R.</p>
+                      </div>
+                      
+                      <div className="flex justify-center mt-2">
                         <button 
                           className="px-4 py-2 bg-[#F5A623] text-white rounded-lg hover:bg-[#F7B844] transition-colors inline-flex items-center"
-                          onClick={() => {
-                            // Aquí podrías implementar la funcionalidad para descargar o compartir
-                            toast.success('¡Código guardado!');
-                          }}
+                          onClick={() => handleTabChange('exercise')}
                         >
-                          <FileText className="h-4 w-4 mr-2" />
-                          Guardar solución
+                          <Play className="h-4 w-4 mr-2" />
+                          Volver al ejercicio
                         </button>
                       </div>
                     </div>

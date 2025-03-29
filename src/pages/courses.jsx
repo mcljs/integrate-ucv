@@ -78,7 +78,7 @@ function CourseItem({ number, title, description, icon, href, isAvailable }) {
   const IconComponent = iconMapping[icon] || BookOpen;
 
   return (
-    <div className={`bg-white rounded-xl p-6 shadow-sm ${isAvailable ? 'hover:shadow-md' : 'opacity-80'} transition-all border border-gray-100`}>
+    <div className={`bg-white relative rounded-xl p-6 shadow-sm ${isAvailable ? 'hover:shadow-md' : 'opacity-80'} transition-all border border-gray-100`}>
       <div className="flex items-center mb-3">
         <div className={`w-10 h-10 rounded-full ${isAvailable ? 'bg-[#F5A623]/10 text-[#F5A623]' : 'bg-gray-200 text-gray-500'} flex items-center justify-center mr-4 text-xl font-semibold`}>
           {number}
@@ -86,7 +86,7 @@ function CourseItem({ number, title, description, icon, href, isAvailable }) {
         <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
         
         {!isAvailable && (
-          <div className="ml-auto flex items-center text-gray-500 bg-gray-100 rounded-full px-3 py-1">
+          <div className="ml-auto lg:flex absolute  lg:right-4 right-4 lg:-mt-0 -mt-12 flex items-center text-gray-500 bg-gray-100 rounded-full px-3 py-1">
             <Construction className="h-4 w-4 mr-1" />
             <span className="text-xs">En construcción</span>
           </div>
