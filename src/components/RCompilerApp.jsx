@@ -724,7 +724,7 @@ const RCompilerApp = () => {
                       <li><code className="bg-amber-100 px-1 rounded">cos(), sin()</code> - Funciones trigonométricas</li>
                     </ul>
                     <p className="text-amber-700 text-sm mt-2">
-                      Escribe tu código R y haz clic en "Ejecutar" para ver los resultados y gráficos.
+                      Escribe tu código R y haz clic en Ejecutar para ver los resultados y gráficos.
                     </p>
                   </div>
                   <button 
@@ -809,7 +809,7 @@ const RCompilerApp = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Compilador R listo</h3>
                 <p className="text-gray-600 mb-6">
-                  Escribe tu código R y haz clic en "Ejecutar" para ver los resultados y visualizaciones.
+                  Escribe tu código R y haz clic en Ejecutar para ver los resultados y visualizaciones.
                 </p>
                 <button 
                   onClick={runCode}
