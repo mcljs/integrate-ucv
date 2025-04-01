@@ -12,7 +12,8 @@ const allLinks = [
   { href: 'calendario', label: 'Calendario', type: 'scroll', showOnlyOnHome: true },
   { href: 'cambio', label: 'Cambio', type: 'scroll', showOnlyOnHome: true },
   { href: '/biblioteca', label: 'Biblioteca Digital', type: 'link' },
-  { href: '/sorteo', label: 'Sorteo', type: 'link' }
+  { href: '/editor-r', label: 'Editor de R', type: 'link' },
+  { href: '/courses', label: 'Curso Interactivo', type: 'link' },
 ];
 
 const NavLink = ({ href, label, type, className }) => {
