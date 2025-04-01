@@ -41,41 +41,8 @@ const ChartModule = dynamic(
 
 // Ejemplos predefinidos
 const EXAMPLES = {
-  trigonometria: `# Gráfico de función trigonométrica
-x <- seq(-pi, pi, 0.1)
-y <- cos(x)
-plot(x, y, main="Función coseno", xlab="x", ylab="cos(x)")`,
-  estadisticas: `# Análisis estadístico básico
-datos <- c(12, 15, 18, 22, 30, 35, 40, 41, 42, 48, 50)
-print("Estadísticas descriptivas:")
-print(paste("Media:", mean(datos)))
-print(paste("Mediana:", median(datos)))
-print(paste("Desviación estándar:", sd(datos)))
-print(paste("Varianza:", var(datos)))
-print(paste("Rango:", min(datos), "-", max(datos)))
-
-# Histograma
-hist(datos, main="Distribución de datos", xlab="Valor", ylab="Frecuencia", col="orange")`,
-  multiplesgraficos: `# Múltiples tipos de gráficos
-x <- c(1, 2, 3, 4, 5)
-y1 <- c(2, 4, 6, 8, 10)
-y2 <- c(1, 3, 5, 7, 9)
-
-# Gráfico de dispersión con líneas
-plot(x, y1, type="o", col="blue", main="Gráfico combinado", xlab="X", ylab="Y")
-lines(x, y2, type="o", col="red")`,
-  basico: `# Ejemplo básico
-x <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-y <- 2 * x + 5
-media_x <- mean(x)
-media_y <- mean(y)
-
-# Imprime resultados
-print(paste("Media de x:", media_x))
-print(paste("Media de y:", media_y))
-
-# Crea un gráfico
-plot(x, y, main="Línea y = 2x + 5", xlab="X", ylab="Y")`
+  trigonometria: `x <- seq(-pi, pi, 0.1)
+plot(x, cos(x))`
 };
 
 // Componente principal
@@ -89,6 +56,7 @@ const RCompilerApp = () => {
   const [showExamples, setShowExamples] = useState(false);
   const [showAllExamples, setShowAllExamples] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  
   
   const chartContainerRef = useRef(null);
   const chartsRef = useRef([]);
@@ -175,6 +143,11 @@ const RCompilerApp = () => {
       
       // Crear función auxiliar para gráficos
       window.createPlot = (options) => {
+
+        if (!chartContainerRef.current) {
+            console.warn('Chart container ref is not available');
+            return 0;
+          }
         const { 
           x, y, data, type, title, xLabel, yLabel, bins, 
           color, pointType, pointSymbol, lineType, lineWidth,
