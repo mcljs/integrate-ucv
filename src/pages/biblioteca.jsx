@@ -35,10 +35,19 @@ const getFileType = (filename) => {
 
 const getS3Url = (path) => {
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Dividir la ruta por el separador '/' y procesar cada segmento
   const segments = cleanPath.split('/').map(segment => {
+    // Aplicar normalización pero mantener los guiones bajos existentes
     const normalizedSegment = normalizeText(segment);
-    return encodeURIComponent(normalizedSegment);
+    
+    // Convertir guiones bajos a espacios antes de codificar la URL
+    // (esto parece ser lo que espera tu sistema S3)
+    const segmentWithSpaces = normalizedSegment.replace(/_/g, ' ');
+    
+    return encodeURIComponent(segmentWithSpaces);
   });
+  
   return `https://s3.magic-api.xyz/ucv-eeca/${segments.join('/')}`;
 };
 
@@ -639,6 +648,14 @@ const DigitalLibrary = () => {
   const handleSubjectClick = (subject) => {
     setSelectedSubject(subject);
     setTimeout(() => materialsRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+  };
+
+  const normalizeText = (text) => {
+    return text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
+      .replace(/[º°]/g, '')
+      .trim();
   };
 
   const handleDownload = async (path) => {
