@@ -84,6 +84,112 @@ const DigitalLibrary = () => {
       subjects: ["Matemáticas", "Estadística"],
       materials: {
       "Matemáticas": [
+
+        // Archivos en el directorio principal
+{ "path": "matematicas-prope/mate_20210429_induccion_completadocx.docx", "name": "Inducción Completa" },
+{ "path": "matematicas-prope/mate_ecuación_de_eulerdocx.docx", "name": "Ecuación de Euler" },
+{ "path": "matematicas-prope/mate_ejercicio_angel_enrique_v2docx.docx", "name": "Ejercicio Ángel Enrique V2" },
+
+// Directorio 20240420
+{ "path": "matematicas-prope/mate_20240420/mate_20240420_logica_y_conjuntos.docx", "name": "Lógica y Conjuntos" },
+{ "path": "matematicas-prope/mate_20240420/mate_logica_proposicional_y_teoria_de_conjuntos.pdf", "name": "Lógica Proposicional y Teoría de Conjuntos" },
+
+// Directorio evaluaciones_m0
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_1er_parcial_2019-ii.docx", "name": "Primer Parcial 2019-II" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_1er_parcial_2019-ii_v2.docx", "name": "Primer Parcial 2019-II (Versión 2)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_1ra_evaluación_grupal_de_matemáticas_8_a_915_am.pdf", "name": "Primera Evaluación Grupal (8:00-9:15)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2do_parcial_2019-ii_seccion_12.docx", "name": "Segundo Parcial 2019-II (Sección 12)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_3er_parcial_2019-ii_evaluacion_grupal.pdf", "name": "Tercer Parcial 2019-II (Evaluación Grupal)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_3er_parcial_2019-ii_evaluacion_individual.pdf", "name": "Tercer Parcial 2019-II (Evaluación Individual)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_3er_parcial_de_matematica_propedeutico_i-2020.docx", "name": "Tercer Parcial Propedéutico I-2020" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_4to_parcial_2019-ii.pdf", "name": "Cuarto Parcial 2019-II" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_examen_#3_matematicas.pdf", "name": "Examen #3 Matemáticas" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_examen_#4_matematicas_prope.pdf", "name": "Examen #4 Matemáticas Propedéutico" },
+
+// Directorio evaluaciones_m0/2019-1
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_parcial_2019-i.docx", "name": "Primer Parcial 2019-I" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_parcial_2019-i.pdf", "name": "Primer Parcial 2019-I (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_parcial_2019-i_resuelto.docx", "name": "Primer Parcial 2019-I Resuelto" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_parcial_2019-i_resuelto.pdf", "name": "Primer Parcial 2019-I Resuelto (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_quiz_matematicas_2019-i.docx", "name": "Primer Quiz 2019-I" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_quiz_matematicas_2019-i.pdf", "name": "Primer Quiz 2019-I (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_quiz_matematicas_2019-i_resuelto.docx", "name": "Primer Quiz 2019-I Resuelto" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_1er_quiz_matematicas_2019-i_resuelto.pdf", "name": "Primer Quiz 2019-I Resuelto (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_2do_parcial_2019-i.docx", "name": "Segundo Parcial 2019-I" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_2do_parcial_2019-i.pdf", "name": "Segundo Parcial 2019-I (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_2do_parcial_2019-i_resuelto.docx", "name": "Segundo Parcial 2019-I Resuelto" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_2do_parcial_2019-i_resuelto.pdf", "name": "Segundo Parcial 2019-I Resuelto (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_3er_parcial_2019-i.docx", "name": "Tercer Parcial 2019-I" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_3er_parcial_2019-i.pdf", "name": "Tercer Parcial 2019-I (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_4to_parcial_2019-i.docx", "name": "Cuarto Parcial 2019-I" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_4to_parcial_2019-i.pdf", "name": "Cuarto Parcial 2019-I (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_asignacion_exponencial_y_logaritmos_2019-i.docx", "name": "Asignación: Exponencial y Logaritmos 2019-I" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_asignacion_exponencial_y_logaritmos_2019-i.pdf", "name": "Asignación: Exponencial y Logaritmos 2019-I (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_pre-examen_3_2019-i.docx", "name": "Pre-examen 3 (2019-I)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_pre-examen_3_2019-i.pdf", "name": "Pre-examen 3 (2019-I) (PDF)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_pre-examen_4_2019-i.docx", "name": "Pre-examen 4 (2019-I)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_2019-1/mate_pre-examen_4_2019-i.pdf", "name": "Pre-examen 4 (2019-I) (PDF)" },
+
+// Directorio evaluaciones_m0/fotos_transcritas
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_1er_parcial_ricardo_quintero_y_raquel_fernandez_01.jpg", "name": "Primer Parcial - Quintero y Fernández (Imagen 1)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_1er_parcial_ricardo_quintero_y_raquel_fernandez_02.jpg", "name": "Primer Parcial - Quintero y Fernández (Imagen 2)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_1er_parcial_ricardo_quintero_y_raquel_fernandez_opc1.jpg", "name": "Primer Parcial - Quintero y Fernández (Opción 1)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_1er_parcial_ricardo_quintero_y_raquel_fernandez_opc2.jpg", "name": "Primer Parcial - Quintero y Fernández (Opción 2)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_1er_parcial_ricardo_quintero_y_sahid_leal.jpg", "name": "Primer Parcial - Quintero y Leal" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_2do_parcial_ricardo_quintero_y_raquel_fernandez_01.jpg", "name": "Segundo Parcial - Quintero y Fernández (Imagen 1)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_2do_parcial_ricardo_quintero_y_raquel_fernandez_02.jpg", "name": "Segundo Parcial - Quintero y Fernández (Imagen 2)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_2do_parcial_ricardo_quintero_y_raquel_fernandez_03.jpg", "name": "Segundo Parcial - Quintero y Fernández (Imagen 3)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_2do_parcial_ricardo_quintero_y_raquel_fernandez_20021218.jpg", "name": "Segundo Parcial - Quintero y Fernández (18/12/2002)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_2do_parcial_ricardo_quintero_y_raquel_fernandez_20040114.jpg", "name": "Segundo Parcial - Quintero y Fernández (14/01/2004)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_3er_parcial_20110207.jpg", "name": "Tercer Parcial (07/02/2011)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_3er_parcial_ricardo_quintero_y_raquel_fernandez_20020114.jpg", "name": "Tercer Parcial - Quintero y Fernández (14/01/2002)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_3er_parcial_ricardo_quintero_y_raquel_fernandez_20030708.jpg", "name": "Tercer Parcial - Quintero y Fernández (08/07/2003)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_fotos_transcritas/mate_3er_parcial_sin_informacion.jpg", "name": "Tercer Parcial (Sin Información)" },
+
+// Directorio evaluaciones_m0/word_y_pdf - omito algunos para evitar duplicaciones excesivas
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_ever_jaimes.docx", "name": "Primer Parcial - Ever Jaimes" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_jorge_aquino_y_pedro_calatayud.docx", "name": "Primer Parcial - Aquino y Calatayud" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_mayarin_lopez.docx", "name": "Primer Parcial - Mayarin López" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_mayarin_lopez_20180122.pdf", "name": "Primer Parcial - Mayarin López (22/01/2018)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_ever_jaimes.docx", "name": "Segundo Parcial - Ever Jaimes" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_ever_jaimes_y_mayarin_lopez.docx", "name": "Segundo Parcial - Jaimes y López" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_jorge_aquino_y_pedro_calatayud.docx", "name": "Segundo Parcial - Aquino y Calatayud" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_mayarin_lopez_20180218.pdf", "name": "Segundo Parcial - Mayarin López (18/02/2018)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_3er_parcial_mayarin_lopez_20180322.pdf", "name": "Tercer Parcial - Mayarin López (22/03/2018)" },
+{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_rec_parcial_mayarin_lopez_20180418.pdf", "name": "Recuperativo - Mayarin López (18/04/2018)" },
+
+// Directorio m0_20192_
+{ "path": "matematicas-prope/mate_m0_20192_/mate_1er_parcial_alexander_brito.pdf", "name": "Primer Parcial - Alexander Brito" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_1er_parcial_nicolas_yanez.pdf", "name": "Primer Parcial - Nicolás Yánez" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_1ra_evaluación_grupal_de_matemáticas_8_a_915_am.pdf", "name": "Primera Evaluación Grupal (8:00-9:15)" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_1ra_evaluación_grupal_de_matemáticas_900_a_1015_am.pdf", "name": "Primera Evaluación Grupal (9:00-10:15)" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_asignacion_#1.docx", "name": "Asignación #1" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_álgebra_de_baldor.pdf", "name": "Álgebra de Baldor" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_e-navarro-propedeutico-de-matematica.pdf", "name": "E. Navarro - Propedéutico de Matemática" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_examen_#2_cesar_rodriguez.xlsx", "name": "Examen #2 - César Rodríguez" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_guia_rapida_funciones.pdf", "name": "Guía Rápida: Funciones" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_guia_rapida_polinomios.pdf", "name": "Guía Rápida: Polinomios" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_teoria_polinomios.pdf", "name": "Teoría: Polinomios" },
+{ "path": "matematicas-prope/mate_m0_20192_/mate_teoría_funciones.pdf", "name": "Teoría: Funciones" },
+
+// Directorio presentaciones_m0
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20190721_2355_funcion_lineal.xlsx", "name": "Función Lineal (21/07/2019)" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20191003_2246_polinomios.xlsx", "name": "Polinomios (03/10/2019)" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20191006_2016_polinomios.docx", "name": "Polinomios (06/10/2019)" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20191006_2119_teoria_de_conjuntos_iniciando.docx", "name": "Teoría de Conjuntos" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20191009_0520_funcion_lineal.docx", "name": "Función Lineal (09/10/2019)" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20191012_0000_conjuntos_numericos_iniciando.docx", "name": "Conjuntos Numéricos" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20191012_1800_trigonometria_figuras.pptx", "name": "Trigonometría: Figuras" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20200323_2348_funcion_logaritmica_y_exponencial.docx", "name": "Función Logarítmica y Exponencial" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_20220410_2140_trigonometria.docx", "name": "Trigonometría (10/04/2022)" },
+{ "path": "matematicas-prope/mate_presentaciones_m0/mate_identidades_trigonometricas_ejercicios.docx", "name": "Identidades Trigonométricas: Ejercicios" },
+
+// Directorio teoria_segun_tema_otros_materiales
+{ "path": "matematicas-prope/mate_teoria_segun_tema_otros_materiales/mate_cap2_teoria_combinatoria.pdf", "name": "Teoría Combinatoria (Cap. 2)" },
+{ "path": "matematicas-prope/mate_teoria_segun_tema_otros_materiales/mate_clases_propedeutico_jorge_aquino.docx", "name": "Clases Propedéutico - Jorge Aquino" },
+{ "path": "matematicas-prope/mate_teoria_segun_tema_otros_materiales/mate_guia_1.docx", "name": "Guía 1" },
+{ "path": "matematicas-prope/mate_teoria_segun_tema_otros_materiales/mate_guia_1_resolviendo.docx", "name": "Guía 1 (Resolución)" },
+{ "path": "matematicas-prope/mate_teoria_segun_tema_otros_materiales/mate_jorge_aquino_prop_teoria_de_conjuntos.docx", "name": "Teoría de Conjuntos - Jorge Aquino" },
   // Material 2024
   { "path": "ciclo-basico/matematica-prope/2024.04.20/logica-proposicional-y-teoria-de-conjuntos.pdf", "name": "Lógica Proposicional y Teoría de Conjuntos" },
   { "path": "ciclo-basico/matematica-prope/2024.04.20/20240420-logica-y-conjuntos.docx", "name": "Lógica y Conjuntos" },
