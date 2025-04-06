@@ -34,32 +34,11 @@ const getFileType = (filename) => {
 };
 
 const getS3Url = (path) => {
+  // Eliminar la barra inicial si existe
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   
-  // Dividir la ruta por el separador '/' y procesar cada segmento
-  const segments = cleanPath.split('/').map(segment => {
-    // Normalizar quitando acentos pero preservando la estructura
-    const normalizedSegment = normalizeText(segment);
-    
-    // Determinar si el segmento usa principalmente guiones bajos o guiones medios
-    const underscoreCount = (normalizedSegment.match(/_/g) || []).length;
-    const dashCount = (normalizedSegment.match(/-/g) || []).length;
-    
-    // Decidir qué tipo de separador usar para el reemplazo
-    let segmentForUrl;
-    
-    // Si es un archivo final (con extensión) o tiene más guiones bajos, reemplazar _ por espacios
-    if (segment.includes('.') || underscoreCount > dashCount) {
-      segmentForUrl = normalizedSegment.replace(/_/g, ' ');
-    } else {
-      // Mantener el formato original para directorios y rutas con guiones
-      segmentForUrl = normalizedSegment;
-    }
-    
-    return encodeURIComponent(segmentForUrl);
-  });
-  
-  return `https://s3.magic-api.xyz/ucv-eeca/${segments.join('/')}`;
+  // Simplemente devolver la URL concatenada con el path exacto
+  return `https://s3.magic-api.xyz/ucv-eeca/${cleanPath}`;
 };
 
 const containerVariants = {
