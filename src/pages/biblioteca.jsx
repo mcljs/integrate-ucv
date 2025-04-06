@@ -97,9 +97,7 @@ const DigitalLibrary = () => {
 // Directorio evaluaciones_m0
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_1er_parcial_2019-ii.docx", "name": "Primer Parcial 2019-II" },
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_1er_parcial_2019-ii_v2.docx", "name": "Primer Parcial 2019-II (Versión 2)" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_1ra_evaluación_grupal_de_matemáticas_8_a_915_am.pdf", "name": "Primera Evaluación Grupal (8:00-9:15)" },
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_2do_parcial_2019-ii_seccion_12.docx", "name": "Segundo Parcial 2019-II (Sección 12)" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_3er_parcial_2019-ii_evaluacion_grupal.pdf", "name": "Tercer Parcial 2019-II (Evaluación Grupal)" },
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_3er_parcial_2019-ii_evaluacion_individual.pdf", "name": "Tercer Parcial 2019-II (Evaluación Individual)" },
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_3er_parcial_de_matematica_propedeutico_i-2020.docx", "name": "Tercer Parcial Propedéutico I-2020" },
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_4to_parcial_2019-ii.pdf", "name": "Cuarto Parcial 2019-II" },
@@ -150,13 +148,6 @@ const DigitalLibrary = () => {
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_ever_jaimes.docx", "name": "Primer Parcial - Ever Jaimes" },
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_jorge_aquino_y_pedro_calatayud.docx", "name": "Primer Parcial - Aquino y Calatayud" },
 { "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_mayarin_lopez.docx", "name": "Primer Parcial - Mayarin López" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_1er_parcial_mayarin_lopez_20180122.pdf", "name": "Primer Parcial - Mayarin López (22/01/2018)" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_ever_jaimes.docx", "name": "Segundo Parcial - Ever Jaimes" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_ever_jaimes_y_mayarin_lopez.docx", "name": "Segundo Parcial - Jaimes y López" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_jorge_aquino_y_pedro_calatayud.docx", "name": "Segundo Parcial - Aquino y Calatayud" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_2do_parcial_mayarin_lopez_20180218.pdf", "name": "Segundo Parcial - Mayarin López (18/02/2018)" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_3er_parcial_mayarin_lopez_20180322.pdf", "name": "Tercer Parcial - Mayarin López (22/03/2018)" },
-{ "path": "matematicas-prope/mate_evaluaciones_m0/mate_word_y_pdf/mate_rec_parcial_mayarin_lopez_20180418.pdf", "name": "Recuperativo - Mayarin López (18/04/2018)" },
 
 // Directorio m0_20192_
 { "path": "matematicas-prope/mate_m0_20192_/mate_1er_parcial_alexander_brito.pdf", "name": "Primer Parcial - Alexander Brito" },
@@ -191,7 +182,7 @@ const DigitalLibrary = () => {
 { "path": "matematicas-prope/mate_teoria_segun_tema_otros_materiales/mate_guia_1_resolviendo.docx", "name": "Guía 1 (Resolución)" },
 { "path": "matematicas-prope/mate_teoria_segun_tema_otros_materiales/mate_jorge_aquino_prop_teoria_de_conjuntos.docx", "name": "Teoría de Conjuntos - Jorge Aquino" },
   // Material 2024
-  { "path": "ciclo-basico/matematica-prope/2024.04.20/logica-proposicional-y-teoria-de-conjuntos.pdf", "name": "Lógica Proposicional y Teoría de Conjuntos" },
+
   { "path": "ciclo-basico/matematica-prope/2024.04.20/20240420-logica-y-conjuntos.docx", "name": "Lógica y Conjuntos" },
   { "path": "ciclo-basico/matematica-prope/2021.04.29-induccion-completa.docx", "name": "Inducción Completa" },
   { "path": "ciclo-basico/matematica-prope/ecuación-de-euler.docx", "name": "Ecuación de Euler" },
