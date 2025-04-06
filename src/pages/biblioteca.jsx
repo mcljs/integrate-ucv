@@ -9,11 +9,11 @@ import { NextSeo } from 'next-seo';
 const normalizeText = (text) => {
   return text
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
     .replace(/[º°]/g, '')
-    .replace(/_/g, ' ')
     .trim();
 };
+
 
 const getFileType = (filename) => {
   const ext = filename.split('.').pop().toLowerCase();
@@ -38,14 +38,25 @@ const getS3Url = (path) => {
   
   // Dividir la ruta por el separador '/' y procesar cada segmento
   const segments = cleanPath.split('/').map(segment => {
-    // Aplicar normalización pero mantener los guiones bajos existentes
+    // Normalizar quitando acentos pero preservando la estructura
     const normalizedSegment = normalizeText(segment);
     
-    // Convertir guiones bajos a espacios antes de codificar la URL
-    // (esto parece ser lo que espera tu sistema S3)
-    const segmentWithSpaces = normalizedSegment.replace(/_/g, ' ');
+    // Determinar si el segmento usa principalmente guiones bajos o guiones medios
+    const underscoreCount = (normalizedSegment.match(/_/g) || []).length;
+    const dashCount = (normalizedSegment.match(/-/g) || []).length;
     
-    return encodeURIComponent(segmentWithSpaces);
+    // Decidir qué tipo de separador usar para el reemplazo
+    let segmentForUrl;
+    
+    // Si es un archivo final (con extensión) o tiene más guiones bajos, reemplazar _ por espacios
+    if (segment.includes('.') || underscoreCount > dashCount) {
+      segmentForUrl = normalizedSegment.replace(/_/g, ' ');
+    } else {
+      // Mantener el formato original para directorios y rutas con guiones
+      segmentForUrl = normalizedSegment;
+    }
+    
+    return encodeURIComponent(segmentForUrl);
   });
   
   return `https://s3.magic-api.xyz/ucv-eeca/${segments.join('/')}`;
