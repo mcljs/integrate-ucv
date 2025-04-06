@@ -288,7 +288,72 @@ const DigitalLibrary = () => {
           { "path": "ciclo-basico/estadistica-prope/otros-materiales---tema-1/francisco-azorín-poch.pdf", "name": "Francisco Azorín Poch" },
           { "path": "ciclo-basico/estadistica-prope/la-mentira-en-porcentaje.pdf", "name": "La Mentira en Porcentaje" },
           { "path": "ciclo-basico/estadistica-prope/mts-y-sp---análisis-descriptivo-bivariante.pdf", "name": "Análisis Descriptivo Bivariante" },
-          { "path": "ciclo-basico/estadistica-prope/excel,-spss-y-r/r---introduccion-a-r.pdf", "name": "Introducción a R" }
+          { "path": "ciclo-basico/estadistica-prope/excel,-spss-y-r/r---introduccion-a-r.pdf", "name": "Introducción a R" },
+          // Archivos principales
+{ "path": "estadistica-prope/la_mentira_en_porcentaje.pdf", "name": "La Mentira en Porcentaje" },
+{ "path": "estadistica-prope/mts_y_sp_análisis_descriptivo_bivariante.pdf", "name": "Análisis Descriptivo Bivariante" },
+{ "path": "estadistica-prope/hans-roslings-200-countries-200-years-4-minutes-the-joy-of-stats-bbc-four.mp4", "name": "La Alegría de las Estadísticas - Hans Rosling" },
+
+// Carpeta 2024
+{ "path": "estadistica-prope/2024/tema_1._historia.JPG", "name": "Tema 1 - Historia" },
+{ "path": "estadistica-prope/2024/tema_2._producción_de_datos_estadísticos._clase_1_2023-01-27.pdf", "name": "Tema 2 - Producción de Datos Estadísticos" },
+{ "path": "estadistica-prope/2024/tema_3._medicion._clase_1.pdf", "name": "Tema 3.1 - Medición" },
+{ "path": "estadistica-prope/2024/tema_3._medicion._clase_2._escalas_de_medición.pdf", "name": "Tema 3.2 - Escalas de Medición" },
+{ "path": "estadistica-prope/2024/tema_3._medicion._clase_3._porcentaje,_proporción_y_razón.pdf", "name": "Tema 3.3 - Porcentaje, Proporción y Razón" },
+{ "path": "estadistica-prope/2024/tema_4._medidas_de_posición._clase_1..pdf", "name": "Tema 4.1 - Medidas de Posición" },
+{ "path": "estadistica-prope/2024/tema_4._practica_de_medidas_de_tendencia_central.pdf", "name": "Tema 4.2 - Práctica Medidas de Tendencia Central" },
+{ "path": "estadistica-prope/2024/tema_4._practica_medidas_de_posición.pdf", "name": "Tema 4.3 - Práctica Medidas de Posición" },
+{ "path": "estadistica-prope/2024/tema_4._ejercicio_tipo_examen.pdf", "name": "Tema 4.4 - Ejercicio Tipo Examen" },
+
+// Carpeta 2021_-presentaciones
+{ "path": "estadistica-prope/2021_-presentaciones/01_01_introduccion_a_la_estadística_pensamiento_estadístico.pdf", "name": "1.1 - Pensamiento Estadístico" },
+{ "path": "estadistica-prope/2021_-presentaciones/01_02_introduccion_a_la_estadística_la_investigación_estadística.pdf", "name": "1.2 - Investigación Estadística" },
+{ "path": "estadistica-prope/2021_-presentaciones/02_01_produccion_de_datos_estadisticos_conceptos_básicos.pdf", "name": "2.1 - Conceptos Básicos" },
+{ "path": "estadistica-prope/2021_-presentaciones/03_01_medicion_constantes_y_variables,_medición.pdf", "name": "3.1 - Constantes y Variables" },
+{ "path": "estadistica-prope/2021_-presentaciones/03_03_medición_cocientes_estadisticos.pdf", "name": "3.3 - Cocientes Estadísticos" },
+{ "path": "estadistica-prope/2021_-presentaciones/04_01_ordenamiento_de_datos_y_diagrama_de_tallo_y_hojas.pptx.pdf", "name": "4.1 - Ordenamiento de Datos" },
+{ "path": "estadistica-prope/2021_-presentaciones/04_02_cuartiles,_deciles_y_percentiles.pdf", "name": "4.2 - Cuartiles, Deciles y Percentiles" },
+
+// Carpeta 2021_clases_zoom
+{ "path": "estadistica-prope/2021_clases_zoom/ple_i-2022_clase_1_estadística_propedéutico_def.pdf", "name": "Clase 1 - Estadística Propedéutico" },
+{ "path": "estadistica-prope/2021_clases_zoom/clase_2022.06.25_05_02_media_aritmetica_editado.pdf", "name": "Media Aritmética" },
+{ "path": "estadistica-prope/2021_clases_zoom/clase_2022.06.28_05_03_media_geométrica_editado.pdf", "name": "Media Geométrica" },
+{ "path": "estadistica-prope/2021_clases_zoom/clase_2022.06.25_05_04_media_armónica_editado.pdf", "name": "Media Armónica" },
+{ "path": "estadistica-prope/2021_clases_zoom/clase_2022.07.02_05_05_relaciones_entre_promedios_matemáticos.pdf", "name": "Relaciones entre Promedios" },
+{ "path": "estadistica-prope/2021_clases_zoom/clase_2022.07.02_06_02_propiedades_de_la_desviación_estándar.pdf", "name": "Propiedades de la Desviación Estándar" },
+{ "path": "estadistica-prope/2021_clases_zoom/clase_2022.07.16_07_01_momentos.pdf", "name": "Momentos" },
+
+// Carpeta 2022_trabajo_ley_y_manuales
+{ "path": "estadistica-prope/2022_trabajo_ley_y_manuales/ley_de_la_función_pública_de_estadística.pdf", "name": "Ley de la Función Pública de Estadística" },
+{ "path": "estadistica-prope/2022_trabajo_ley_y_manuales/proyecto_de_reglamento_de_la_ley_de_la_función_pública_de_estadística.PDF", "name": "Proyecto de Reglamento" },
+{ "path": "estadistica-prope/2022_trabajo_ley_y_manuales/codigo_de_buenas_practicas_estadisticas_europeas.pdf", "name": "Código de Buenas Prácticas Europeas" },
+{ "path": "estadistica-prope/2022_trabajo_ley_y_manuales/codigo_de_buenas_practicas_de_las_estadistica_venezolanas.pdf", "name": "Código de Buenas Prácticas Venezolanas" },
+
+// Carpeta estudio_de_casos
+{ "path": "estadistica-prope/estudio_de_casos/20192_estudio_de_caso_20200328.pdf", "name": "Estudio de Caso 2019-2" },
+{ "path": "estadistica-prope/estudio_de_casos/estudio_de_caso_2020.05.18.pdf", "name": "Estudio de Caso 2020" },
+{ "path": "estadistica-prope/estudio_de_casos/guia_para_la_elaboracion_de_tabulados_y_graficos.pdf", "name": "Guía para Elaboración de Tabulados y Gráficos" },
+{ "path": "estadistica-prope/estudio_de_casos/tema_8_representaciones_gráficas_2020.05.30.pdf", "name": "Representaciones Gráficas" },
+
+// Carpeta practicas
+{ "path": "estadistica-prope/practicas/guía_practica_del_curso_propedéutico_estadística_2020.04.23.pdf", "name": "Guía Práctica del Curso" },
+{ "path": "estadistica-prope/practicas/prof._beens_tema_3_practica_ple_2021.pdf", "name": "Práctica Tema 3" },
+{ "path": "estadistica-prope/practicas/prof._beens_tema_4_practica_ple_2021.pdf", "name": "Práctica Tema 4" },
+{ "path": "estadistica-prope/practicas/prof._beens_tema_5_ejemplos_ple_2021.pdf", "name": "Ejemplos Tema 5" },
+{ "path": "estadistica-prope/practicas/prof._beens_tema_6_practica_ple_2021.pdf", "name": "Práctica Tema 6" },
+{ "path": "estadistica-prope/practicas/prof._beens_guia_tema_7.pdf", "name": "Guía Tema 7" },
+{ "path": "estadistica-prope/practicas/prof._beens_guia_tema_8.pdf", "name": "Guía Tema 8" },
+
+// Carpeta otros_materiales_tema_1
+{ "path": "estadistica-prope/otros_materiales_tema_1/historia_del_razonamiento_estadístico.pdf", "name": "Historia del Razonamiento Estadístico" },
+{ "path": "estadistica-prope/otros_materiales_tema_1/la_eeca_en_cifras.pdf", "name": "La EECA en Cifras" },
+{ "path": "estadistica-prope/otros_materiales_tema_1/la_eeca_en_cifras_ii.pdf", "name": "La EECA en Cifras II" },
+{ "path": "estadistica-prope/otros_materiales_tema_1/material_de_joel_morgado.pdf", "name": "Material de Joel Morgado" },
+{ "path": "estadistica-prope/otros_materiales_tema_1/estadística_sistemica_azorin_poch.pdf", "name": "Estadística Sistémica (Azorín Poch)" },
+{ "path": "estadistica-prope/otros_materiales_tema_1/francisco_azorín_poch.pdf", "name": "Francisco Azorín Poch" },
+
+// Carpeta excel,_spss_y_r
+{ "path": "estadistica-prope/excel,_spss_y_r/r_introduccion_a_r.pdf", "name": "Introducción a R" },
         ]
       }
     }
