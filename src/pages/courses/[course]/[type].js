@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getLesson } from '@/data/r-exercises';
-import { verifyRSolution, simulateRExecution } from '@/utils/r-validator';
+import { verifyRSolution } from '@/utils/r-validator';
 import { RCodeBlock } from '@/utils/r-syntax-highlighter';
 import { CodeExample, CodeSolution } from '@/components/CodeExamples';
 

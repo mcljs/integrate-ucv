@@ -44,7 +44,7 @@ export default function Home() {
               description={course.description}
               icon={course.icon}
               href={course.href}
-              isAvailable={index < 2} // Solo los primeros 2 cursos están disponibles
+              isAvailable={index < 4} // Solo los primeros 2 cursos están disponibles
             />
           ))}
         </div>
