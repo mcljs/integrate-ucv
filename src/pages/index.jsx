@@ -17,6 +17,7 @@ import ProposalSection from "@/components/ProposalSection";
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import clsx from 'clsx'
+import PhotoCollage from '@/components/PhotoCollage'
 
 
 function MathLogo() {
@@ -695,6 +696,7 @@ export default function Home() {
         </div>
     </Container>
 </div>
+<PhotoCollage />
       <Testimonials />
       <Footer />
     </div>
