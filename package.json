@@ -24,6 +24,8 @@
     "feed": "^4.2.2",
     "focus-visible": "^5.2.1",
     "framer-motion": "^11.11.11",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.454.0",
     "next": "14.2.11",
     "next-sanity": "^9.4.7",
