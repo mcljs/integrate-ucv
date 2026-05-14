@@ -1,659 +1,561 @@
-/**
- * Sistema de validación para ejercicios de código R
- * Proporciona funciones para validar la sintaxis y resultados de código R
- */
+// r-validator.js — Validador híbrido de ejercicios R.
+//
+// Estrategia:
+//   1. Ejecuta el código del estudiante con RCompiler.
+//   2. Compara el entorno resultante contra valores esperados (deep equal con tolerancia).
+//   3. Si falla, analiza el código con patrones declarativos para sugerir qué arreglar.
+//
+// Los ejercicios se definen declarativamente (ver EXERCISE_CATALOG abajo).
+// Cada ejercicio tiene:
+//   - id, type, description, expectedOutput
+//   - expectedVars: { nombre: valor_esperado, ... }     (validación por ejecución)
+//   - requiredPatterns: [ { regex, hint } ]             (pistas si falla la ejecución)
+//   - forbiddenPatterns: [ { regex, hint } ]            (cosas que no deben aparecer)
+//   - syntaxChecks: lista de checks de sintaxis ligeros aplicables al ejercicio
 
-/**
- * Analiza el código R en busca de patrones específicos
- * @param {string} code - Código R a analizar
- * @param {object} patterns - Patrones a buscar en el código
- * @returns {object} Resultado del análisis
- */
-export function analyzeRCode(code, patterns = {}) {
-  const results = {
-    // Campos para ejercicios existentes
-    hasVectorCreation: false,
-    hasMeanCalculation: false,
-    hasCorrectValues: false,
-    hasCorrectVariableNames: false,
-    hasTypeConversion: false,
-    
-    // Campos para nuevos ejercicios de vectores y matrices
-    hasVectorOperations: false,
-    hasMatrixCreation: false,
-    hasMatrixOperations: false,
-    hasDiagonalExtraction: false,
-    
-    // Campos para nuevos ejercicios de dataframes
-    hasDataframeCreation: false,
-    hasDataframeManipulation: false,
-    hasDataframeFiltering: false,
-    hasMaxSearch: false,
-    
-    syntaxErrors: []
+import RCompiler from './RCompiler';
+
+// ---------- Comparación de valores con tolerancia ----------
+const FLOAT_TOLERANCE = 1e-9;
+
+function deepEqualR(a, b, tol = FLOAT_TOLERANCE) {
+  // R no distingue entre un escalar y un vector de longitud 1.
+  // Si uno es array de 1 elemento, comparamos con el escalar.
+  if (Array.isArray(a) && a.length === 1 && !Array.isArray(b)) return deepEqualR(a[0], b, tol);
+  if (Array.isArray(b) && b.length === 1 && !Array.isArray(a)) return deepEqualR(a, b[0], tol);
+
+  // NaN == NaN para nuestros propósitos
+  if (typeof a === 'number' && typeof b === 'number') {
+    if (Number.isNaN(a) && Number.isNaN(b)) return true;
+    return Math.abs(a - b) <= tol * Math.max(1, Math.abs(a), Math.abs(b));
+  }
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
+    return a.every((v, i) => deepEqualR(v, b[i], tol));
+  }
+  // Matrices
+  if (a && a.__isMatrix && b && b.__isMatrix) {
+    if (a.nrow !== b.nrow || a.ncol !== b.ncol) return false;
+    return Array.from(a).every((v, i) => deepEqualR(v, b[i], tol));
+  }
+  // Data frames
+  if (a && a.__isDataFrame && b && b.__isDataFrame) {
+    if (a.names.length !== b.names.length) return false;
+    if (!a.names.every(n => b.names.includes(n))) return false;
+    return a.names.every(n => deepEqualR(a.columns[n], b.columns[n], tol));
+  }
+  // Listas
+  if (a && a.__isList && b && b.__isList) {
+    if (a.values.length !== b.values.length) return false;
+    return a.values.every((v, i) => deepEqualR(v, b.values[i], tol));
+  }
+  return false;
+}
+
+// ---------- Análisis de patrones para pistas ----------
+export function analyzeRCode(code, options = {}) {
+  const findings = {
+    syntaxErrors: [],
+    requiredMatched: [],
+    requiredMissing: [],
+    forbiddenFound: [],
   };
 
-  // Verificar si el código contiene la creación de un vector
-  if (patterns.vectorCreation) {
-    const vectorPattern = new RegExp(patterns.vectorCreation);
-    results.hasVectorCreation = vectorPattern.test(code);
+  // Chequeos sintácticos básicos
+  const openP = (code.match(/\(/g) || []).length;
+  const closeP = (code.match(/\)/g) || []).length;
+  if (openP !== closeP) {
+    findings.syntaxErrors.push({
+      type: 'error',
+      message: 'Paréntesis desbalanceados. Verifica que cada paréntesis abierto tenga su correspondiente cierre.',
+    });
   }
 
-  // Verificar si el código contiene el cálculo de una media
-  if (patterns.meanCalculation) {
-    const meanPattern = new RegExp(patterns.meanCalculation);
-    results.hasMeanCalculation = meanPattern.test(code);
+  const openB = (code.match(/\{/g) || []).length;
+  const closeB = (code.match(/\}/g) || []).length;
+  if (openB !== closeB) {
+    findings.syntaxErrors.push({
+      type: 'error',
+      message: 'Llaves desbalanceadas.',
+    });
   }
 
-  // Verificar si el vector contiene los valores correctos
-  if (patterns.correctValues) {
-    const valuesPattern = new RegExp(patterns.correctValues);
-    results.hasCorrectValues = valuesPattern.test(code);
+  const openBr = (code.match(/\[/g) || []).length;
+  const closeBr = (code.match(/\]/g) || []).length;
+  if (openBr !== closeBr) {
+    findings.syntaxErrors.push({
+      type: 'error',
+      message: 'Corchetes desbalanceados.',
+    });
   }
 
-  // Verificar nombres de variables
-  if (patterns.variableNames) {
-    const varPattern = new RegExp(patterns.variableNames);
-    results.hasCorrectVariableNames = varPattern.test(code);
-  }
-  
-  // Verificar conversión de tipos
-  if (patterns.typeConversion) {
-    const conversionPattern = new RegExp(patterns.typeConversion);
-    results.hasTypeConversion = conversionPattern.test(code);
-  }
-  
-  // Verificar operaciones con vectores
-  if (patterns.vectorOperations) {
-    const vectorOpsPattern = new RegExp(patterns.vectorOperations);
-    results.hasVectorOperations = vectorOpsPattern.test(code);
-  }
-  
-  // Verificar creación de matrices
-  if (patterns.matrixCreation) {
-    const matrixPattern = new RegExp(patterns.matrixCreation);
-    results.hasMatrixCreation = matrixPattern.test(code);
-  }
-  
-  // Verificar operaciones con matrices
-  if (patterns.matrixOperations) {
-    const matrixOpsPattern = new RegExp(patterns.matrixOperations);
-    results.hasMatrixOperations = matrixOpsPattern.test(code);
-  }
-  
-  // Verificar extracción de diagonal
-  if (patterns.diagonalExtraction) {
-    const diagPattern = new RegExp(patterns.diagonalExtraction);
-    results.hasDiagonalExtraction = diagPattern.test(code);
-  }
-  
-  // Verificar creación de dataframe
-  if (patterns.dataframeCreation) {
-    const dfPattern = new RegExp(patterns.dataframeCreation);
-    results.hasDataframeCreation = dfPattern.test(code);
-  }
-  
-  // Verificar manipulación de dataframe
-  if (patterns.dataframeManipulation) {
-    const dfManipPattern = new RegExp(patterns.dataframeManipulation);
-    results.hasDataframeManipulation = dfManipPattern.test(code);
-  }
-  
-  // Verificar filtrado de dataframe
-  if (patterns.dataframeFiltering) {
-    const dfFilterPattern = new RegExp(patterns.dataframeFiltering);
-    results.hasDataframeFiltering = dfFilterPattern.test(code);
-  }
-  
-  // Verificar búsqueda de máximo
-  if (patterns.maxSearch) {
-    const maxSearchPattern = new RegExp(patterns.maxSearch);
-    results.hasMaxSearch = maxSearchPattern.test(code);
+  // Comillas balanceadas (heurística simple, ignora escapes)
+  const doubleQuotes = (code.match(/"/g) || []).length;
+  if (doubleQuotes % 2 !== 0) {
+    findings.syntaxErrors.push({
+      type: 'error',
+      message: 'Hay comillas dobles sin cerrar.',
+    });
   }
 
-  // Verificar errores comunes de sintaxis
-  checkSyntaxErrors(code, results);
+  // Patrones requeridos
+  for (const p of options.requiredPatterns || []) {
+    const re = p.regex instanceof RegExp ? p.regex : new RegExp(p.regex);
+    if (re.test(code)) findings.requiredMatched.push(p);
+    else findings.requiredMissing.push(p);
+  }
 
-  return results;
+  // Patrones prohibidos
+  for (const p of options.forbiddenPatterns || []) {
+    const re = p.regex instanceof RegExp ? p.regex : new RegExp(p.regex);
+    if (re.test(code)) findings.forbiddenFound.push(p);
+  }
+
+  return findings;
 }
 
-/**
- * Verifica errores comunes de sintaxis en código R
- * @param {string} code - Código R a analizar
- * @param {object} results - Objeto de resultados a modificar
- */
-function checkSyntaxErrors(code, results) {
-  // Verificar paréntesis balanceados
-  const openParens = (code.match(/\(/g) || []).length;
-  const closeParens = (code.match(/\)/g) || []).length;
-  
-  if (openParens !== closeParens) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'Paréntesis desbalanceados. Verifica que cada paréntesis abierto tenga su correspondiente cierre.'
-    });
+// ---------- Catálogo de ejercicios ----------
+// Definidos declarativamente. Para añadir un ejercicio nuevo, agregá aquí.
+export const EXERCISE_CATALOG = {
+  mean_calculation: {
+    type: 'mean_calculation',
+    description: 'Calcular la media de un vector de edades',
+    expectedVars: {
+      edades: [23, 45, 67, 32, 19, 21, 30],
+      // media calculada: 33.857142857...
+      // Aceptamos el nombre 'media' o cualquier otro; chequeamos al menos uno.
+    },
+    expectedScalars: {
+      // Si existe una variable que es la media, debe ser este valor.
+      mean_value: { value: 33.857142857142854, tol: 1e-6, candidateNames: ['media', 'media_edades', 'promedio'] },
+    },
+    requiredPatterns: [
+      { regex: /edades\s*(<-|=)/, hint: "Debes crear una variable llamada 'edades'." },
+      { regex: /\bmean\s*\(/, hint: "Usa la función mean() para calcular el promedio." },
+    ],
+    forbiddenPatterns: [
+      { regex: /sum\s*\([^)]+\)\s*\/\s*length/, hint: "Mejor usa mean() directamente en lugar de sum()/length()." },
+    ],
+  },
+
+  data_conversion: {
+    type: 'data_conversion',
+    description: 'Convertir un vector numérico a caracter',
+    expectedVars: {
+      valores: [1, 2, 3, 4, 5],
+      valores_texto: ['1', '2', '3', '4', '5'],
+    },
+    requiredPatterns: [
+      { regex: /valores\s*(<-|=)/, hint: "Crea el vector 'valores'." },
+      { regex: /as\.character\s*\(/, hint: "Usa as.character() para la conversión." },
+    ],
+  },
+
+  vector_operations: {
+    type: 'vector_operations',
+    description: 'Operaciones aritméticas y producto punto',
+    expectedVars: {
+      vector_a: [5, 10, 15, 20, 25],
+      vector_b: [2, 4, 6, 8, 10],
+      resultado_suma: [7, 14, 21, 28, 35],
+      resultado_producto: [10, 40, 90, 160, 250],
+      producto_punto: 550,
+    },
+    requiredPatterns: [
+      { regex: /vector_a\s*(<-|=)/, hint: "Crea el vector 'vector_a'." },
+      { regex: /vector_b\s*(<-|=)/, hint: "Crea el vector 'vector_b'." },
+      { regex: /resultado_suma\s*(<-|=)\s*vector_a\s*\+\s*vector_b/, hint: "Calcula la suma como vector_a + vector_b." },
+      { regex: /resultado_producto\s*(<-|=)\s*vector_a\s*\*\s*vector_b/, hint: "Calcula el producto elemento a elemento." },
+      { regex: /producto_punto\s*(<-|=)\s*sum\s*\(\s*vector_a\s*\*\s*vector_b\s*\)/, hint: "Producto punto: sum(vector_a * vector_b)." },
+    ],
+  },
+
+  matrix_operations: {
+    type: 'matrix_operations',
+    description: 'Crear matriz 3x3, extraer diagonal y sumar',
+    expectedVars: {
+      // Matriz por filas: 1..9 -> column-major en R: [1,4,7, 2,5,8, 3,6,9]
+      // Pero usuario puede usar matrix(..., byrow=TRUE); chequeamos el __isMatrix con valores correctos.
+    },
+    expectedScalars: {
+      diagonal_a: { value: [1, 5, 9], tol: 0, candidateNames: ['diagonal_a', 'diagonal'] },
+      suma_total: { value: 45, tol: 0, candidateNames: ['suma_total', 'suma'] },
+    },
+    requiredPatterns: [
+      { regex: /matrix\s*\(/, hint: "Usa la función matrix() para crear la matriz." },
+      { regex: /byrow\s*=\s*(TRUE|T)\b/, hint: "Llena la matriz por filas con byrow = TRUE." },
+      { regex: /diag\s*\(/, hint: "Usa diag() para extraer la diagonal." },
+      { regex: /sum\s*\(/, hint: "Usa sum() para sumar todos los elementos." },
+    ],
+  },
+
+  dataframe_creation: {
+    type: 'dataframe_creation',
+    description: 'Crear un dataframe de estudiantes y agregar columna calculada',
+    expectedDataFrames: {
+      estudiantes: {
+        columns: {
+          Nombre: ['Ana', 'Pedro', 'Carmen', 'Miguel', 'Laura'],
+          Edad: [22, 20, 25, 19, 23],
+          Nota: [8.5, 7.2, 9.1, 6.8, 8.9],
+          Aprobado: [true, true, true, false, true],
+        },
+        derivedColumns: {
+          Puntos_Extra: (df) => df.columns.Nota.map(n => n * 0.1),
+        },
+      },
+    },
+    requiredPatterns: [
+      { regex: /data\.frame\s*\(/, hint: "Usa data.frame() para crear el dataframe." },
+      { regex: /estudiantes\$Puntos_Extra\s*(<-|=)/, hint: "Agrega la columna Puntos_Extra con el operador $." },
+    ],
+  },
+
+  dataframe_analysis: {
+    type: 'dataframe_analysis',
+    description: 'Filtrar aprobados, media de notas, mejor estudiante',
+    // Para este ejercicio, el dataframe 'estudiantes' debe haber sido creado en el
+    // ejercicio anterior. Asumimos que el estudiante lo recrea o lo tiene en memoria.
+    // Si no existe, el código fallará al ejecutar y el validador dará pistas.
+    expectedScalars: {
+      media_aprobados: {
+        value: 8.425,
+        tol: 0.01,
+        candidateNames: ['media_aprobados', 'media', 'promedio'],
+      },
+      mejor_estudiante: {
+        value: 'Carmen',
+        tol: 0,
+        candidateNames: ['mejor_estudiante', 'mejor', 'nombre_mejor'],
+      },
+    },
+    requiredPatterns: [
+      { regex: /aprobados\s*(<-|=)/, hint: "Crea un dataframe 'aprobados' con los estudiantes que tienen Aprobado == TRUE." },
+      { regex: /mean\s*\(/, hint: "Usa mean() para calcular la media de las notas." },
+      { regex: /which\.max\s*\(/, hint: "Usa which.max() para encontrar el índice del estudiante con la nota más alta." },
+    ],
+  },
+};
+
+// ---------- Validador principal ----------
+export class RValidator {
+  constructor(options = {}) {
+    this.compiler = new RCompiler();
+    this.options = options;
   }
 
-  // Verificar comas en la declaración de vectores
-  if (code.includes('c(') && !code.match(/c\(\s*([^,\s]+\s*,\s*)+[^,\s]+\s*\)/)) {
-    const vectorMatch = code.match(/c\(([^)]+)\)/);
-    if (vectorMatch && !vectorMatch[1].includes(',')) {
-      results.syntaxErrors.push({
-        type: 'error',
-        message: 'Falta separar los elementos del vector con comas.'
-      });
+  /**
+   * Verifica la solución del estudiante para un ejercicio dado.
+   * @param {string} code - Código R del estudiante
+   * @param {object} exercise - Definición de ejercicio (o el id; ver getExercise)
+   * @returns {{ isCorrect, message, output, plots, errors, hints, details }}
+   */
+  verify(code, exercise) {
+    if (typeof exercise === 'string') {
+      exercise = EXERCISE_CATALOG[exercise];
     }
-  }
-
-  // Verificar asignación correcta
-  if (!code.includes('<-') && !code.includes('=')) {
-    if (code.includes('valores') || code.includes('valores_texto') || 
-        code.includes('edades') || code.includes('media') ||
-        code.includes('vector_a') || code.includes('vector_b') ||
-        code.includes('matriz_a') || code.includes('estudiantes')) {
-      results.syntaxErrors.push({
-        type: 'error',
-        message: 'Falta el operador de asignación. Usa "<-" o "=" para asignar valores a variables.'
-      });
+    if (!exercise) {
+      return { isCorrect: false, message: 'Ejercicio no encontrado o no soportado.', hints: [], details: null };
     }
+
+    // 1. Análisis estático para errores rápidos
+    const staticFindings = analyzeRCode(code, {
+      requiredPatterns: exercise.requiredPatterns || [],
+      forbiddenPatterns: exercise.forbiddenPatterns || [],
+    });
+
+    if (staticFindings.syntaxErrors.length > 0) {
+      return {
+        isCorrect: false,
+        message: staticFindings.syntaxErrors[0].message,
+        output: null,
+        plots: [],
+        errors: staticFindings.syntaxErrors,
+        hints: [],
+        details: { phase: 'static', findings: staticFindings },
+      };
+    }
+
+    // 2. Ejecutar el código del estudiante
+    const exec = this.compiler.run(code);
+    if (exec.error) {
+      const hints = this._buildHints(staticFindings);
+      return {
+        isCorrect: false,
+        message: 'Tu código tiene un error de ejecución: ' + exec.error.message,
+        output: exec.output,
+        plots: exec.plots,
+        errors: [{ type: 'runtime', message: exec.error.message }],
+        hints,
+        details: { phase: 'runtime', findings: staticFindings, error: exec.error },
+      };
+    }
+
+    // 3. Verificar variables esperadas en el entorno final del sandbox
+    const env = exec.env || {};
+    const checks = this._checkExpectedValues(env, exercise);
+
+    if (checks.allOk) {
+      return {
+        isCorrect: true,
+        message: '¡Excelente! Tu solución es correcta.',
+        output: exec.output,
+        plots: exec.plots,
+        env,
+        errors: [],
+        hints: [],
+        details: { phase: 'pass', findings: staticFindings, checks },
+      };
+    }
+
+    // 4. Falló alguna comprobación: combinar fallos con pistas de patrones
+    const hints = this._buildHints(staticFindings);
+    const failMessages = checks.failures.map(f => f.message);
+    return {
+      isCorrect: false,
+      message: failMessages[0] || 'Tu solución no produce los resultados esperados.',
+      output: exec.output,
+      plots: exec.plots,
+      env,
+      errors: checks.failures,
+      hints,
+      details: { phase: 'value', findings: staticFindings, checks },
+    };
   }
 
-  // Verificar nombre de función mean()
-  if (code.includes('mean') && !code.includes('mean(')) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'La función "mean" necesita paréntesis. Usa mean() para calcular la media.'
-    });
+  _captureGlobals() {
+    // Tras compiler.run, las variables `var X = ...` se cuelgan en globalThis.
+    return globalThis;
   }
-  
-  // Verificar nombre de función as.character()
-  if (code.includes('as.character') && !code.includes('as.character(')) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'La función "as.character" necesita paréntesis. Usa as.character() para la conversión.'
-    });
+
+  _checkExpectedValues(env, exercise) {
+    const failures = [];
+
+    // expectedVars: nombres exactos
+    if (exercise.expectedVars) {
+      for (const [name, expected] of Object.entries(exercise.expectedVars)) {
+        if (!(name in env)) {
+          failures.push({ kind: 'missing_var', name, message: `Falta la variable '${name}'.` });
+          continue;
+        }
+        if (!deepEqualR(env[name], expected)) {
+          failures.push({
+            kind: 'wrong_value',
+            name,
+            expected,
+            got: env[name],
+            message: `La variable '${name}' no tiene el valor esperado.`,
+          });
+        }
+      }
+    }
+
+    // expectedScalars: cualquier nombre de la lista de candidatos sirve
+    if (exercise.expectedScalars) {
+      for (const [key, spec] of Object.entries(exercise.expectedScalars)) {
+        const candidates = spec.candidateNames || [key];
+        const found = candidates.find(n => n in env);
+        if (!found) {
+          failures.push({
+            kind: 'missing_scalar',
+            name: key,
+            message: `No se encontró una variable con el resultado de '${key}' (probá nombres como: ${candidates.join(', ')}).`,
+          });
+          continue;
+        }
+        if (spec.value !== null && !deepEqualR(env[found], spec.value, spec.tol ?? 1e-6)) {
+          failures.push({
+            kind: 'wrong_value',
+            name: found,
+            expected: spec.value,
+            got: env[found],
+            message: `La variable '${found}' no tiene el valor esperado.`,
+          });
+        }
+      }
+    }
+
+    // expectedDataFrames
+    if (exercise.expectedDataFrames) {
+      for (const [name, spec] of Object.entries(exercise.expectedDataFrames)) {
+        const df = env[name];
+        if (!df || !df.__isDataFrame) {
+          failures.push({ kind: 'missing_df', name, message: `Falta el dataframe '${name}'.` });
+          continue;
+        }
+        // Columnas literales
+        if (spec.columns) {
+          for (const [col, expected] of Object.entries(spec.columns)) {
+            if (!deepEqualR(df.columns[col], expected)) {
+              failures.push({
+                kind: 'wrong_column',
+                df: name, col,
+                expected, got: df.columns[col],
+                message: `La columna '${col}' del dataframe '${name}' no tiene los valores esperados.`,
+              });
+            }
+          }
+        }
+        // Columnas derivadas
+        if (spec.derivedColumns) {
+          for (const [col, fn] of Object.entries(spec.derivedColumns)) {
+            let expected;
+            try { expected = fn(df); } catch (e) { continue; }
+            if (!deepEqualR(df.columns[col], expected)) {
+              failures.push({
+                kind: 'wrong_derived',
+                df: name, col,
+                expected, got: df.columns[col],
+                message: `La columna '${col}' no se calculó correctamente.`,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return { allOk: failures.length === 0, failures };
   }
-  
-  // Verificar sintaxis de matrices
-  if (code.includes('matrix') && !code.includes('matrix(')) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'La función "matrix" necesita paréntesis. Usa matrix() para crear matrices.'
-    });
-  }
-  
-  // Verificar parámetros de la función matrix
-  if (code.includes('matrix(') && code.includes('byrow') && !code.match(/byrow\s*=\s*(TRUE|T|FALSE|F)/i)) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'El parámetro byrow debe ser TRUE o FALSE.'
-    });
-  }
-  
-  // Verificar uso de diag()
-  if (code.includes('diag') && !code.includes('diag(')) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'La función "diag" necesita paréntesis. Usa diag() para extraer la diagonal.'
-    });
-  }
-  
-  // Verificar sintaxis de data.frame
-  if (code.includes('data.frame') && !code.includes('data.frame(')) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'La función "data.frame" necesita paréntesis. Usa data.frame() para crear dataframes.'
-    });
-  }
-  
-  // Verificar operador $ para dataframes
-  if ((code.includes('estudiantes') || code.includes('aprobados')) && 
-      code.includes('$') && !code.match(/[a-zA-Z_][a-zA-Z0-9_]*\$[a-zA-Z_][a-zA-Z0-9_]*/)) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'Revisa el uso del operador $. La sintaxis correcta es dataframe$columna.'
-    });
-  }
-  
-  // Verificar función which.max()
-  if (code.includes('which.max') && !code.includes('which.max(')) {
-    results.syntaxErrors.push({
-      type: 'error',
-      message: 'La función "which.max" necesita paréntesis. Usa which.max() para encontrar el índice del valor máximo.'
-    });
+
+  _buildHints(staticFindings) {
+    const hints = [];
+    for (const p of staticFindings.requiredMissing) {
+      hints.push({ kind: 'missing_pattern', message: p.hint });
+    }
+    for (const p of staticFindings.forbiddenFound) {
+      hints.push({ kind: 'forbidden_pattern', message: p.hint });
+    }
+    return hints;
   }
 }
 
-/**
- * Simula la ejecución de código R
- * @param {string} code - Código R a ejecutar
- * @param {object} exercise - Datos del ejercicio
- * @returns {object} Resultado de la ejecución
- */
-export function simulateRExecution(code, exercise) {
-  if (!exercise) {
-    return {
-      output: "Error: No se proporcionaron datos del ejercicio",
-      success: false,
-      error: "Configuración incompleta"
-    };
-  }
+// ---------- Formato consola estilo R ----------
+// Toma un environment ({nombre: valor, ...}) y produce un string que se
+// parece a lo que R imprimiría si tipearas cada variable en la consola.
 
-  // Para el ejercicio de cálculo de media
-  if (exercise.type === 'mean_calculation') {
-    const analysis = analyzeRCode(code, {
-      vectorCreation: 'edades\\s*<-\\s*c\\(',
-      meanCalculation: 'media(_|\\w)*\\s*<-\\s*mean\\(\\s*edades\\s*\\)',
-      correctValues: 'c\\(\\s*23\\s*,\\s*45\\s*,\\s*67\\s*,\\s*32\\s*,\\s*19\\s*,\\s*21\\s*,\\s*30\\s*\\)',
-      variableNames: '(edades|media(_|\\w)*)'
-    });
-
-    // Verificar errores de sintaxis
-    if (analysis.syntaxErrors.length > 0) {
-      return {
-        output: null,
-        success: false,
-        error: analysis.syntaxErrors[0].message,
-        details: analysis
-      };
-    }
-
-    // Verificar si falta la creación del vector
-    if (!analysis.hasVectorCreation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha creado el vector 'edades' correctamente.",
-        details: analysis
-      };
-    }
-
-    // Verificar si los valores son correctos
-    if (!analysis.hasCorrectValues) {
-      return {
-        output: null,
-        success: false,
-        error: "El vector 'edades' no contiene los valores correctos o están en orden incorrecto.",
-        details: analysis
-      };
-    }
-
-    // Verificar si falta el cálculo de la media
-    if (!analysis.hasMeanCalculation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha calculado la media del vector 'edades' correctamente. Usa la función mean().",
-        details: analysis
-      };
-    }
-
-    // Todo está correcto, devolver el resultado esperado
-    return {
-      output: exercise.expectedOutput,
-      success: true,
-      details: analysis
-    };
+export function formatEnvAsConsole(env, options = {}) {
+  if (!env || typeof env !== 'object') return '';
+  const lines = [];
+  const skipKeys = new Set(options.skip || []);
+  // Mantener orden de definición (Object.keys preserva orden de inserción)
+  for (const name of Object.keys(env)) {
+    if (skipKeys.has(name)) continue;
+    if (name.startsWith('__')) continue;
+    const value = env[name];
+    if (typeof value === 'function') continue;
+    lines.push(`> ${name}`);
+    lines.push(formatValueR(value));
   }
-  
-  // Para el ejercicio de conversión de tipos de datos
-  else if (exercise.type === 'data_conversion') {
-    const analysis = analyzeRCode(code, {
-      vectorCreation: 'valores\\s*<-\\s*(c\\(\\s*1\\s*,\\s*2\\s*,\\s*3\\s*,\\s*4\\s*,\\s*5\\s*\\)|1:5)',
-      typeConversion: 'valores_texto\\s*<-\\s*as\\.character\\(\\s*valores\\s*\\)',
-      variableNames: '(valores|valores_texto)'
-    });
-    
-    // Verificar errores de sintaxis
-    if (analysis.syntaxErrors.length > 0) {
-      return {
-        output: null,
-        success: false,
-        error: analysis.syntaxErrors[0].message,
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta la creación del vector
-    if (!analysis.hasVectorCreation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha creado el vector 'valores' correctamente. Debes crear un vector con los números del 1 al 5.",
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta la conversión de tipos
-    if (!analysis.hasTypeConversion) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha convertido el vector a tipo caracter correctamente. Usa la función as.character().",
-        details: analysis
-      };
-    }
-    
-    // Todo está correcto, devolver el resultado esperado
-    return {
-      output: exercise.expectedOutput,
-      success: true,
-      details: analysis
-    };
-  }
-  
-  // Para el ejercicio de operaciones con vectores
-  else if (exercise.type === 'vector_operations') {
-    // Modificar el análisis para verificar cada vector por separado
-    const analysis_vector_a = analyzeRCode(code, {
-      vectorCreation: 'vector_a\\s*<-\\s*c\\(\\s*5\\s*,\\s*10\\s*,\\s*15\\s*,\\s*20\\s*,\\s*25\\s*\\)'
-    });
-    
-    const analysis_vector_b = analyzeRCode(code, {
-      vectorCreation: 'vector_b\\s*<-\\s*c\\(\\s*2\\s*,\\s*4\\s*,\\s*6\\s*,\\s*8\\s*,\\s*10\\s*\\)'
-    });
-    
-    const analysis_operations = analyzeRCode(code, {
-      vectorOperations: 'resultado_suma\\s*<-\\s*vector_a\\s*\\+\\s*vector_b',
-      variableNames: '(vector_a|vector_b|resultado_suma|resultado_producto|producto_punto)'
-    });
-    
-    // Combinar resultados
-    const analysis = {
-      ...analysis_operations,
-      hasVectorCreation: analysis_vector_a.hasVectorCreation && analysis_vector_b.hasVectorCreation,
-      syntaxErrors: [
-        ...analysis_vector_a.syntaxErrors,
-        ...analysis_vector_b.syntaxErrors,
-        ...analysis_operations.syntaxErrors
-      ]
-    };
-    
-    // Verificar errores de sintaxis
-    if (analysis.syntaxErrors.length > 0) {
-      return {
-        output: null,
-        success: false,
-        error: analysis.syntaxErrors[0].message,
-        details: analysis
-      };
-    }
-    
-    // Verificar si faltan los vectores
-    if (!analysis_vector_a.hasVectorCreation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha creado correctamente el vector 'vector_a' con los valores 5, 10, 15, 20, 25.",
-        details: analysis
-      };
-    }
-    
-    if (!analysis_vector_b.hasVectorCreation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha creado correctamente el vector 'vector_b' con los valores 2, 4, 6, 8, 10.",
-        details: analysis
-      };
-    }
-    
-    // Verificar si faltan las operaciones
-    if (!analysis.hasVectorOperations) {
-      return {
-        output: null,
-        success: false,
-        error: "No se han realizado las operaciones entre vectores correctamente. Debes calcular la suma, el producto y el producto punto.",
-        details: analysis
-      };
-    }
-    
-    // Verificar específicamente cada operación
-    if (!code.match(/resultado_suma\s*<-\s*vector_a\s*\+\s*vector_b/)) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha calculado correctamente la suma de los vectores. Usa: resultado_suma <- vector_a + vector_b",
-        details: analysis
-      };
-    }
-    
-    if (!code.match(/resultado_producto\s*<-\s*vector_a\s*\*\s*vector_b/)) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha calculado correctamente el producto elemento a elemento. Usa: resultado_producto <- vector_a * vector_b",
-        details: analysis
-      };
-    }
-    
-    if (!code.match(/producto_punto\s*<-\s*sum\(\s*vector_a\s*\*\s*vector_b\s*\)/)) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha calculado correctamente el producto punto. Debe ser la suma del producto elemento a elemento de los vectores.",
-        details: analysis
-      };
-    }
-    
-    // Todo está correcto, devolver el resultado esperado
-    return {
-      output: exercise.expectedOutput,
-      success: true,
-      details: analysis
-    };
-  }
-  
-  // Para el ejercicio de creación y manipulación de matrices
-  else if (exercise.type === 'matrix_operations') {
-    const analysis = analyzeRCode(code, {
-      matrixCreation: 'matriz_a\\s*<-\\s*matrix\\(\\s*1:9\\s*,\\s*nrow\\s*=\\s*3\\s*,\\s*ncol\\s*=\\s*3\\s*,\\s*byrow\\s*=\\s*TRUE\\s*\\)',
-      diagonalExtraction: 'diagonal_a\\s*<-\\s*diag\\(\\s*matriz_a\\s*\\)',
-      matrixOperations: 'suma_total\\s*<-\\s*sum\\(\\s*matriz_a\\s*\\)',
-      variableNames: '(matriz_a|diagonal_a|suma_total)'
-    });
-    
-    // Verificar errores de sintaxis
-    if (analysis.syntaxErrors.length > 0) {
-      return {
-        output: null,
-        success: false,
-        error: analysis.syntaxErrors[0].message,
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta la creación de la matriz
-    if (!analysis.hasMatrixCreation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha creado la matriz 'matriz_a' correctamente. Debe ser una matriz 3x3 con los números del 1 al 9 llenándola por filas.",
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta la extracción de la diagonal
-    if (!analysis.hasDiagonalExtraction) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha extraído la diagonal de la matriz correctamente. Usa la función diag().",
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta el cálculo de la suma
-    if (!analysis.hasMatrixOperations) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha calculado la suma de todos los elementos de la matriz correctamente. Usa la función sum().",
-        details: analysis
-      };
-    }
-    
-    // Todo está correcto, devolver el resultado esperado
-    return {
-      output: exercise.expectedOutput,
-      success: true,
-      details: analysis
-    };
-  }
-  
-  // Para el ejercicio de creación de dataframes
-  else if (exercise.type === 'dataframe_creation') {
-    const analysis = analyzeRCode(code, {
-      dataframeCreation: 'estudiantes\\s*<-\\s*data\\.frame\\(',
-      dataframeManipulation: 'estudiantes\\$Puntos_Extra\\s*<-\\s*estudiantes\\$Nota\\s*\\*\\s*0\\.1',
-      variableNames: '(estudiantes|Nombre|Edad|Nota|Aprobado|Puntos_Extra)'
-    });
-    
-    // Verificar errores de sintaxis
-    if (analysis.syntaxErrors.length > 0) {
-      return {
-        output: null,
-        success: false,
-        error: analysis.syntaxErrors[0].message,
-        details: analysis
-      };
-    }
-    
-    // Verificar si faltan los vectores para el dataframe
-    if (!code.match(/Nombre\s*<-\s*c\(\s*\"Ana\"\s*,\s*\"Pedro\"\s*,\s*\"Carmen\"\s*,\s*\"Miguel\"\s*,\s*\"Laura\"\s*\)/)) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha creado correctamente el vector 'Nombre' con los valores especificados.",
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta la creación del dataframe
-    if (!analysis.hasDataframeCreation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha creado el dataframe 'estudiantes' correctamente. Usa la función data.frame().",
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta la manipulación del dataframe
-    if (!analysis.hasDataframeManipulation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha añadido la columna 'Puntos_Extra' correctamente. Debe ser igual a 'Nota' multiplicada por 0.1.",
-        details: analysis
-      };
-    }
-    
-    // Todo está correcto, devolver el resultado esperado
-    return {
-      output: exercise.expectedOutput,
-      success: true,
-      details: analysis
-    };
-  }
-  
-  // Para el ejercicio de filtrado y análisis de dataframes
-  else if (exercise.type === 'dataframe_analysis') {
-    const analysis = analyzeRCode(code, {
-      dataframeFiltering: 'aprobados\\s*<-\\s*estudiantes\\[estudiantes\\$Aprobado\\s*==\\s*TRUE',
-      dataframeManipulation: 'media_aprobados\\s*<-\\s*mean\\(aprobados\\$Nota\\)',
-      maxSearch: 'mejor_estudiante\\s*<-\\s*estudiantes\\$Nombre\\[which\\.max\\(estudiantes\\$Nota\\)\\]',
-      variableNames: '(aprobados|media_aprobados|mejor_estudiante)'
-    });
-    
-    // Verificar errores de sintaxis
-    if (analysis.syntaxErrors.length > 0) {
-      return {
-        output: null,
-        success: false,
-        error: analysis.syntaxErrors[0].message,
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta el filtrado del dataframe
-    if (!analysis.hasDataframeFiltering) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha filtrado el dataframe para obtener los estudiantes aprobados correctamente. Usa estudiantes[estudiantes$Aprobado == TRUE, ]",
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta el cálculo de la media
-    if (!analysis.hasDataframeManipulation) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha calculado la media de las notas de los estudiantes aprobados correctamente. Usa mean(aprobados$Nota)",
-        details: analysis
-      };
-    }
-    
-    // Verificar si falta la búsqueda del mejor estudiante
-    if (!analysis.hasMaxSearch) {
-      return {
-        output: null,
-        success: false,
-        error: "No se ha encontrado correctamente el estudiante con la nota más alta. Usa which.max() para obtener el índice de la nota máxima.",
-        details: analysis
-      };
-    }
-    
-    // Todo está correcto, devolver el resultado esperado
-    return {
-      output: exercise.expectedOutput,
-      success: true,
-      details: analysis
-    };
-  }
-
-  // Para otros tipos de ejercicios (esto sería un fallback genérico)
-  return {
-    output: "Error: Tipo de ejercicio no soportado para validación automática",
-    success: false,
-    error: "Este tipo de ejercicio no tiene validaciones específicas implementadas."
-  };
+  return lines.join('\n');
 }
 
-/**
- * Verifica una solución completa
- * @param {string} code - Código R a verificar
- * @param {object} exercise - Datos del ejercicio
- * @returns {object} Resultado de la verificación
- */
+function formatValueR(v) {
+  if (v === null || v === undefined) return 'NULL';
+
+  // Matriz
+  if (v && v.__isMatrix) {
+    const colW = Math.max(...Array.from(v).map(x => formatScalar(x).length));
+    const rowLabels = Array.from({length: v.nrow}, (_, i) => `[${i+1},]`);
+    const colLabels = Array.from({length: v.ncol}, (_, i) => `[,${i+1}]`);
+    const rowLabelW = Math.max(...rowLabels.map(s => s.length));
+    const cellW = Math.max(colW, ...colLabels.map(s => s.length));
+
+    const header = ' '.repeat(rowLabelW) + ' ' + colLabels.map(s => s.padStart(cellW)).join(' ');
+    const rows = [];
+    for (let i = 0; i < v.nrow; i++) {
+      const cells = [];
+      for (let j = 0; j < v.ncol; j++) {
+        cells.push(formatScalar(v[j * v.nrow + i]).padStart(cellW));
+      }
+      rows.push(rowLabels[i].padEnd(rowLabelW) + ' ' + cells.join(' '));
+    }
+    return [header, ...rows].join('\n');
+  }
+
+  // Data frame
+  if (v && v.__isDataFrame) {
+    const colNames = v.names;
+    // Asegurar que cada columna tenga al menos v.nrow elementos (rellenar con NA)
+    const colData = colNames.map(n => {
+      const col = (v.columns[n] || []).map(formatScalar);
+      while (col.length < v.nrow) col.push('NA');
+      return col;
+    });
+    const colW = colNames.map((n, i) => Math.max(n.length, ...colData[i].map(s => s.length)));
+    const rowLabelW = String(v.nrow).length;
+    const header = ' '.repeat(rowLabelW) + ' ' + colNames.map((n, i) => n.padStart(colW[i])).join(' ');
+    const rows = [];
+    for (let r = 0; r < v.nrow; r++) {
+      const cells = colData.map((col, i) => (col[r] ?? 'NA').padStart(colW[i]));
+      rows.push(String(r + 1).padStart(rowLabelW) + ' ' + cells.join(' '));
+    }
+    return [header, ...rows].join('\n');
+  }
+
+  // Lista
+  if (v && v.__isList) {
+    const parts = [];
+    for (let i = 0; i < v.values.length; i++) {
+      const label = v.names[i] ? `$${v.names[i]}` : `[[${i + 1}]]`;
+      parts.push(label);
+      parts.push(formatValueR(v.values[i]));
+      parts.push('');
+    }
+    return parts.join('\n').trimEnd();
+  }
+
+  // Vector (array)
+  if (Array.isArray(v)) {
+    if (v.length === 0) return 'character(0)';
+    const cells = v.map(formatScalar);
+    const cellW = Math.max(...cells.map(s => s.length));
+    // R muestra ~80 columnas por línea; aprox 6 elementos para vectores cortos
+    const perLine = Math.max(1, Math.floor(72 / (cellW + 1)));
+    const lines = [];
+    for (let i = 0; i < cells.length; i += perLine) {
+      const chunk = cells.slice(i, i + perLine).map(s => s.padStart(cellW)).join(' ');
+      lines.push(`[${i + 1}] ${chunk}`);
+    }
+    return lines.join('\n');
+  }
+
+  // Escalar
+  return `[1] ${formatScalar(v)}`;
+}
+
+function formatScalar(v) {
+  if (v === null || v === undefined) return 'NA';
+  if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+  if (typeof v === 'string') return `"${v}"`;
+  if (typeof v === 'number') {
+    if (Number.isNaN(v)) return 'NaN';
+    if (!Number.isFinite(v)) return v > 0 ? 'Inf' : '-Inf';
+    if (Number.isInteger(v)) return String(v);
+    // R muestra 7 dígitos significativos por defecto
+    return parseFloat(v.toPrecision(7)).toString();
+  }
+  return String(v);
+}
+
+// ---------- API legacy (compatibilidad con el módulo viejo) ----------
+const __defaultValidator = new RValidator();
+
 export function verifyRSolution(code, exercise) {
-  // Verificar si el ejercicio existe
-  if (!exercise) {
-    return {
-      isCorrect: false,
-      message: "No se pudo validar el ejercicio",
-      details: null
-    };
-  }
-
-  // Simular la ejecución
-  const result = simulateRExecution(code, exercise);
-
-  if (result.success) {
-    return {
-      isCorrect: true,
-      message: "¡Excelente! Tu solución es correcta.",
-      output: result.output,
-      details: result.details
-    };
-  } else {
-    return {
-      isCorrect: false,
-      message: result.error || "Tu solución no es correcta. Revisa tu código.",
-      output: null,
-      details: result.details
-    };
-  }
+  return __defaultValidator.verify(code, exercise);
 }
+
+export function simulateRExecution(code, exercise) {
+  const r = __defaultValidator.verify(code, exercise);
+  if (r.isCorrect) {
+    return { output: exercise?.expectedOutput ?? r.output, success: true, details: r.details };
+  }
+  return {
+    output: null,
+    success: false,
+    error: r.message,
+    details: r.details,
+  };
+}
+
+export default RValidator;

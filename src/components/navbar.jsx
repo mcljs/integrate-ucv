@@ -14,6 +14,7 @@ const allLinks = [
   { href: '/biblioteca', label: 'Biblioteca Digital', type: 'link' },
   { href: '/editor-r', label: 'Editor de R', type: 'link' },
   { href: '/courses', label: 'Curso Interactivo', type: 'link' },
+    { href: '/pensum', label: 'Pensum Interactivo', type: 'link' },
 ];
 
 const NavLink = ({ href, label, type, className }) => {
