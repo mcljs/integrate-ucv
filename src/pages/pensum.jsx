@@ -236,7 +236,8 @@ export default function Pensum() {
     const pdfWindow = isMobileOrEmbedded && typeof window !== 'undefined' ? window.open('', '_blank') : null
 
     const { jsPDF } = await import('jspdf')
-    await import('jspdf-autotable')
+    const autoTableModule = await import('jspdf-autotable')
+    const autoTable = autoTableModule.default || autoTableModule.autoTable
     const doc = new jsPDF()
     const nombre = userName || 'Estudiante'
     doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(18, 11, 70)
@@ -264,21 +265,36 @@ export default function Pensum() {
       }
     })
 
-    doc.autoTable({
-      startY: 42, head: [['Sem.', 'Asignatura', 'UC', 'Estado', 'Reprobadas', 'Nota Def.']], body, theme: 'grid',
+    const tableConfig = {
+      startY: 42,
+      head: [['Sem.', 'Asignatura', 'UC', 'Estado', 'Reprobadas', 'Nota Def.']],
+      body,
+      theme: 'grid',
       headStyles: { fillColor: [245, 166, 35], textColor: [255, 255, 255] },
       didParseCell: function (data) {
         if (data.section === 'body' && data.column.index === 4 && data.cell.raw !== '') {
-          data.cell.styles.textColor = [225, 29, 72]; data.cell.styles.fontStyle = 'bold'
+          data.cell.styles.textColor = [225, 29, 72]
+          data.cell.styles.fontStyle = 'bold'
         }
         if (data.section === 'body' && data.column.index === 5 && data.cell.raw !== '-' && data.cell.raw !== 'R') {
-          data.cell.styles.textColor = [4, 120, 87]; data.cell.styles.fontStyle = 'bold'
+          data.cell.styles.textColor = [4, 120, 87]
+          data.cell.styles.fontStyle = 'bold'
         }
       },
-    })
+    }
+
+    if (typeof autoTable === 'function') {
+      autoTable(doc, tableConfig)
+    } else if (typeof doc.autoTable === 'function') {
+      doc.autoTable(tableConfig)
+    } else {
+      throw new Error('No se pudo cargar jspdf-autotable. Verifica que el paquete esté instalado.')
+    }
+
     doc.setFontSize(8); doc.setTextColor(120)
     const disclaimer = 'DOCUMENTO NO OFICIAL. Reporte referencial sin valor administrativo. Herramienta didáctica.'
-    doc.text(doc.splitTextToSize(disclaimer, 180), 14, doc.lastAutoTable.finalY + 15)
+    const finalY = doc.lastAutoTable?.finalY || 42
+    doc.text(doc.splitTextToSize(disclaimer, 180), 14, finalY + 15)
 
     const safeName = nombre
       .normalize('NFD')
