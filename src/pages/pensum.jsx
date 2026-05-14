@@ -71,7 +71,7 @@ const subjects = [
   { id: '4610', name: 'Técnicas Actuariales', uc: 6, dept: 'actuarial', sem: 9, pre: ['4606', '4608'], esp: 'act' },
   { id: '4611', name: 'Teoría Mat. del Riesgo II', uc: 6, dept: 'actuarial', sem: 9, pre: ['4607'], esp: 'act' },
   { id: '4612', name: 'Matemáticas Actuariales III', uc: 6, dept: 'actuarial', sem: 9, pre: ['4608', '4609'], esp: 'act' },
-  { id: 'EL-9', name: 'Electiva', uc: 4, dept: 'electiva', sem: 9, pre: [], minUC: 152, esp: 'comun' },
+  { id: 'EL-9', name: 'Electiva', uc: 4, dept: 'electiva', sem: 9, pre: [], minUC: 152, esp: 'act' },
   { id: '4305', name: 'Sist. de Información Est. II', uc: 4, dept: 'informatica', sem: 10, pre: ['4304'], esp: 'est' },
   { id: '4406', name: 'Prep. y Eval. de Proyectos', uc: 6, dept: 'economia', sem: 10, pre: [], minUC: 156, esp: 'est' },
   { id: '4613', name: 'Técnicas de Reaseguro', uc: 4, dept: 'actuarial', sem: 10, pre: ['4610', '4611'], esp: 'act' },
@@ -231,6 +231,10 @@ export default function Pensum() {
   }
 
   const generarReportePDF = async () => {
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+    const isMobileOrEmbedded = /Android|iPhone|iPad|iPod|Mobile|Instagram|FBAN|FBAV|Line|Twitter|WhatsApp/i.test(userAgent)
+    const pdfWindow = isMobileOrEmbedded && typeof window !== 'undefined' ? window.open('', '_blank') : null
+
     const { jsPDF } = await import('jspdf')
     await import('jspdf-autotable')
     const doc = new jsPDF()
@@ -275,7 +279,35 @@ export default function Pensum() {
     doc.setFontSize(8); doc.setTextColor(120)
     const disclaimer = 'DOCUMENTO NO OFICIAL. Reporte referencial sin valor administrativo. Herramienta didáctica.'
     doc.text(doc.splitTextToSize(disclaimer, 180), 14, doc.lastAutoTable.finalY + 15)
-    doc.save(`Reporte_EECA_${nombre}.pdf`)
+
+    const safeName = nombre
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_-]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'Estudiante'
+    const fileName = `Reporte_EECA_${safeName}.pdf`
+
+    const blob = doc.output('blob')
+    const pdfUrl = URL.createObjectURL(blob)
+
+    if (typeof document !== 'undefined') {
+      const link = document.createElement('a')
+      link.href = pdfUrl
+      link.download = fileName
+      link.rel = 'noopener noreferrer'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+
+    if (pdfWindow) {
+      pdfWindow.location.href = pdfUrl
+    } else if (isMobileOrEmbedded && typeof window !== 'undefined') {
+      const opened = window.open(pdfUrl, '_blank', 'noopener,noreferrer')
+      if (!opened) doc.save(fileName)
+    }
+
+    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
   }
 
   const filteredSubjects = useMemo(() => {
