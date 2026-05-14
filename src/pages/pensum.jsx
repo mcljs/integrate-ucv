@@ -666,6 +666,40 @@ function SubjectCard({ subject: s, status, intentos, isSubjectApproved, ucAprobG
 
   const statusCfg = STATUS_CONFIG[status]
   const StatusIcon = statusCfg.icon
+  const intentosKey = intentos.join('|')
+  const [draftGrades, setDraftGrades] = useState(() => intentos.map((nota) => String(nota)))
+
+  useEffect(() => {
+    setDraftGrades(intentos.map((nota) => String(nota)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intentosKey])
+
+  const updateDraftGrade = (index, value) => {
+    const cleanValue = value.replace(/\D/g, '').slice(0, 2)
+    setDraftGrades((prev) => {
+      const next = [...prev]
+      next[index] = cleanValue
+      return next
+    })
+  }
+
+  const commitDraftGrade = (index) => {
+    const rawValue = (draftGrades[index] ?? '').trim()
+
+    if (rawValue === '') {
+      onGradeInput(s.id, index, '')
+      return
+    }
+
+    const grade = Number(rawValue)
+
+    if (!Number.isInteger(grade) || grade < 1 || grade > 20) {
+      setDraftGrades(intentos.map((nota) => String(nota)))
+      return
+    }
+
+    onGradeInput(s.id, index, String(grade))
+  }
 
   return (
     <motion.div
@@ -736,27 +770,48 @@ function SubjectCard({ subject: s, status, intentos, isSubjectApproved, ucAprobG
 
                 {(status === 'aprobado' || status === 'reprobado') && (
                   <div>
-                    <div className="mb-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Intentos:</div>
+                    <div className="mb-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Nota final:</div>
                     <div className="flex flex-wrap gap-1">
-                      {intentos.map((nota, k) => (
-                        <input
-                          key={k} type="number" min="1" max="20" value={nota}
-                          onChange={(e) => onGradeInput(s.id, k, e.target.value)}
-                          className={`h-8 w-10 rounded-md border text-center text-xs font-extrabold outline-none ${
-                            nota < 10
-                              ? 'border-red-300 bg-red-50 text-red-600'
-                              : 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                          }`}
-                        />
-                      ))}
+                      {intentos.map((nota, k) => {
+                        const draftValue = draftGrades[k] ?? ''
+                        const draftNumber = Number(draftValue)
+                        const isFailingGrade = draftValue !== '' && draftNumber < 10
+
+                        return (
+                          <input
+                            key={k}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={2}
+                            value={draftValue}
+                            onChange={(e) => updateDraftGrade(k, e.target.value)}
+                            onBlur={() => commitDraftGrade(k)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+                            className={`h-8 w-10 rounded-md border text-center text-xs font-extrabold outline-none ${
+                              isFailingGrade
+                                ? 'border-red-300 bg-red-50 text-red-600'
+                                : 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                            }`}
+                          />
+                        )
+                      })}
                       {(intentos.length === 0 || intentos[intentos.length - 1] < 10) && (
                         <input
-                          type="number" min="1" max="20" placeholder="—"
-                          onChange={(e) => onGradeInput(s.id, intentos.length, e.target.value)}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={2}
+                          placeholder="—"
+                          value={draftGrades[intentos.length] ?? ''}
+                          onChange={(e) => updateDraftGrade(intentos.length, e.target.value)}
+                          onBlur={() => commitDraftGrade(intentos.length)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
                           className="h-8 w-10 rounded-md border border-slate-300 bg-slate-50 text-center text-xs font-bold text-[#1a237e] outline-none focus:border-[#F5A623]"
                         />
                       )}
                     </div>
+                    <p className="mt-1 text-[9px] font-semibold text-slate-400">Se guarda al salir del campo o presionar Enter.</p>
                   </div>
                 )}
 
