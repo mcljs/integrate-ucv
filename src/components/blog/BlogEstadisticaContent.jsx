@@ -583,7 +583,7 @@ export default function BlogEstadisticaContent() {
         <CodeBlock code={`import numpy as np
 import pandas as pd
 
-
+# Las notas de 20 estudiantes 
 notas = [14, 7, 18, 11, 15, 9, 16, 13, 12, 17,
          10, 14, 8, 15, 13, 16, 11, 19, 12, 14]
 
@@ -735,9 +735,10 @@ p-valor = 0.0000`}</Output>
 
       <Callout emoji="⚠️">
         Cuidado con esto. Que dos cosas estén correlacionadas no significa que una
-        cause la otra. Los helados vendidos y los ahogamientos en playa tienen
-        correlación altísima — pero los helados no ahogan a nadie. Los dos suben
-        en verano por el mismo motivo. Siempre pregúntate: hay algo más detrás?
+        cause la otra. En Caracas, cuando llueve más, también sube el número de
+        accidentes de tránsito y el de personas que compran paraguas. Las tres cosas
+        se mueven juntas — pero los paraguas no causan accidentes. La lluvia explica
+        todo. Siempre pregúntate: hay algo más detrás?
       </Callout>
 
       {/* 05 */}
