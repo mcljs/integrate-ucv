@@ -583,7 +583,7 @@ export default function BlogEstadisticaContent() {
         <CodeBlock code={`import numpy as np
 import pandas as pd
 
-# Las notas de 20 estudiantes (escala del 0 al 20)
+
 notas = [14, 7, 18, 11, 15, 9, 16, 13, 12, 17,
          10, 14, 8, 15, 13, 16, 11, 19, 12, 14]
 
