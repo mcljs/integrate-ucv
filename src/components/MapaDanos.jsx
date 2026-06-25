@@ -601,8 +601,13 @@ async function enviar() {
             ) : (
               <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-amber-50/40 px-4 py-10 text-center active:border-[#F5A623]">
                 {subiendoFoto ? <Loader2 className="h-8 w-8 animate-spin text-slate-400" /> : <Camera className="h-8 w-8 text-slate-400" />}
-<span className="text-sm text-slate-500">Opcional. Toma o sube una foto clara del edificio.</span>
-                <input type="file" accept="image/*" capture="environment" onChange={onFoto} className="hidden" />
+<span className="text-sm text-slate-500">Puedes tomar una foto o elegir una desde tu galería.</span>
+<input
+  type="file"
+  accept="image/*"
+  onChange={onFoto}
+  className="hidden"
+/>
               </label>
             )}
           </div>
