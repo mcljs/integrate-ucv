@@ -78,10 +78,24 @@ function comprimirImagen(file, maxDim = 1100, quality = 0.55) {
   })
 }
 
+function fijarCoordsYVolar(c) {
+  setCoords(c)
+
+  if (mapRef.current && c?.lat != null && c?.lng != null) {
+    mapRef.current.flyTo([c.lat, c.lng], 17, { duration: 0.8 })
+  }
+}
+
 async function buscarDireccion(q) {
-  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&countrycodes=ve&limit=6&accept-language=es&addressdetails=1`
+  const texto = `${q}, Venezuela`
+
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(texto)}&countrycodes=ve&limit=8&accept-language=es&addressdetails=1`
+
   try {
-    const r = await fetch(url, { headers: { Accept: 'application/json' } })
+    const r = await fetch(url, {
+      headers: { Accept: 'application/json' },
+    })
+
     return r.ok ? r.json() : []
   } catch {
     return []
@@ -223,7 +237,18 @@ function eliminar(id) {
   alert('Por seguridad, el borrado público está desactivado. Luego hacemos un panel admin.')
 }
   function toggleFiltro(n) { setFiltros((prev) => { const s = new Set(prev); s.has(n) ? s.delete(n) : s.add(n); return s }) }
-  function volarA(lat, lng, zoom = 17) { mapRef.current?.flyTo([lat, lng], zoom, { duration: 0.8 }); if (isMobile) setPanelOpen(false) }
+function volarA(lat, lng, zoom = 17) {
+  mapRef.current?.flyTo([lat, lng], zoom, { duration: 0.8 })
+  if (isMobile) setPanelOpen(false)
+}
+
+function fijarCoordsYVolar(c) {
+  setCoords(c)
+
+  if (mapRef.current && c?.lat != null && c?.lng != null) {
+    mapRef.current.flyTo([c.lat, c.lng], 17, { duration: 0.8 })
+  }
+}
   handlersRef.current.onMapClick = abrirFormEnPunto
   handlersRef.current.eliminar = eliminar
 
@@ -371,7 +396,19 @@ visibles.forEach((r) => {
       )}
 
       <AnimatePresence>
-      {formOpen && <FormularioReporte coords={coords} setCoords={setCoords} autofill={autofill} onClose={() => { setFormOpen(false); setCoords(null); setAutofill(null) }} onSubmit={onSubmitReporte} />}
+{formOpen && (
+<FormularioReporte
+  coords={coords}
+  setCoords={fijarCoordsYVolar}
+  autofill={autofill}
+  onClose={() => {
+    setFormOpen(false)
+    setCoords(null)
+    setAutofill(null)
+  }}
+  onSubmit={onSubmitReporte}
+/>
+)}
       </AnimatePresence>
     </div>
   )
@@ -449,11 +486,26 @@ function FormularioReporte({ coords, setCoords, autofill, onClose, onSubmit }) {
     return () => clearTimeout(t)
   }, [query, manual])
 
-  function elegirSugerencia(item) {
-    const p = parseNominatim(item); setCoords({ lat: p.lat, lng: p.lng })
-    setF((prev) => ({ ...prev, direccion: p.direccion, ciudad: p.ciudad || prev.ciudad, zona: p.zona || prev.zona }))
-    setQuery(p.direccion); setSugerencias([])
+function elegirSugerencia(item) {
+  const p = parseNominatim(item)
+
+  const c = {
+    lat: p.lat,
+    lng: p.lng,
   }
+
+  setCoords(c)
+
+  setF((prev) => ({
+    ...prev,
+    direccion: p.direccion,
+    ciudad: p.ciudad || prev.ciudad,
+    zona: p.zona || prev.zona,
+  }))
+
+  setQuery(p.direccion)
+  setSugerencias([])
+}
 function usarMiUbicacion() {
   if (typeof navigator === 'undefined' || !navigator.geolocation) {
     alert('Tu navegador no permite obtener la ubicación.')
@@ -479,16 +531,53 @@ function usarMiUbicacion() {
   )
 }
   async function onFoto(e) { const file = e.target.files?.[0]; if (!file) return; setSubiendoFoto(true); try { set('foto', await comprimirImagen(file)) } catch { alert('No se pudo procesar la foto.') } setSubiendoFoto(false); e.target.value = '' }
-function enviar() {
+async function enviar() {
   if (!f.nombre.trim()) return alert('Indica el nombre del edificio.')
   if (!f.ciudad.trim()) return alert('Indica la ciudad.')
+
+  let finalCoords = coords
+
+  const textoDireccion = [query || f.direccion, f.zona, f.ciudad]
+    .filter(Boolean)
+    .join(', ')
+
+  if (!finalCoords && textoDireccion.trim()) {
+    try {
+      setBuscando(true)
+
+      const resultados = await buscarDireccion(textoDireccion)
+
+      if (resultados && resultados.length > 0) {
+        const p = parseNominatim(resultados[0])
+
+        finalCoords = {
+          lat: p.lat,
+          lng: p.lng,
+        }
+
+        setCoords(finalCoords)
+
+        setF((prev) => ({
+          ...prev,
+          direccion: prev.direccion || p.direccion,
+          ciudad: prev.ciudad || p.ciudad,
+          zona: prev.zona || p.zona,
+        }))
+      }
+    } catch (err) {
+      console.error('No se pudo ubicar la dirección:', err)
+    } finally {
+      setBuscando(false)
+    }
+  }
 
   onSubmit({
     ...f,
     foto: f.foto || '',
     nombre: f.nombre.trim(),
-    lat: coords?.lat ?? null,
-    lng: coords?.lng ?? null,
+    direccion: f.direccion || query || textoDireccion,
+    lat: finalCoords?.lat ?? null,
+    lng: finalCoords?.lng ?? null,
   })
 }
 
@@ -527,7 +616,15 @@ function enviar() {
             {!manual ? (
               <div className="relative">
                 <div className="relative"><MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input value={query} onChange={(e) => setQuery(e.target.value)} className={input + ' pl-9'} placeholder="Busca calle, edificio o referencia" />
+                <input
+  value={query}
+  onChange={(e) => {
+    setQuery(e.target.value)
+    set('direccion', e.target.value)
+  }}
+  className={input + ' pl-9'}
+  placeholder="Ej. Av. Francisco de Miranda, Chacao, Caracas"
+/>
                   {buscando && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />}</div>
                 {sugerencias.length > 0 && (
                   <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg">
@@ -537,8 +634,42 @@ function enviar() {
               </div>
             ) : <input value={f.direccion} onChange={(e) => set('direccion', e.target.value)} className={input} placeholder="Escribe la dirección manualmente" />}
             <button onClick={() => { setManual((v) => !v); setSugerencias([]) }} className="mt-2 flex items-center gap-1 text-xs font-semibold text-[#1a237e]"><Pencil className="h-3 w-3" /> {manual ? 'Volver al buscador' : 'No encuentro la dirección, escribirla manualmente'}</button>
-            <div className="mt-2 flex items-center gap-2 text-xs">
+<div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
               <button onClick={usarMiUbicacion} className="flex items-center gap-1 rounded-lg bg-[#F5A623]/15 px-2.5 py-2 font-bold text-[#b9750f] active:bg-[#F5A623]/25"><Crosshair className="h-3.5 w-3.5" /> Usar mi ubicación</button>
+              <button
+  type="button"
+  onClick={async () => {
+    const texto = [query || f.direccion, f.zona, f.ciudad]
+      .filter(Boolean)
+      .join(', ')
+
+    if (!texto.trim()) {
+      alert('Escribe una dirección o referencia primero.')
+      return
+    }
+
+    setBuscando(true)
+
+    try {
+      const resultados = await buscarDireccion(texto)
+
+      if (!resultados || resultados.length === 0) {
+        alert('No encontré esa dirección. Intenta escribir ciudad, zona y una referencia más clara.')
+        return
+      }
+
+      elegirSugerencia(resultados[0])
+    } catch (err) {
+      console.error(err)
+      alert('No se pudo buscar esa dirección.')
+    } finally {
+      setBuscando(false)
+    }
+  }}
+  className="flex items-center gap-1 rounded-lg bg-[#1a237e]/10 px-2.5 py-2 font-bold text-[#1a237e] active:bg-[#1a237e]/20"
+>
+  <MapPin className="h-3.5 w-3.5" /> Ubicar en mapa
+</button>
 <span className={`font-semibold ${coords ? 'text-emerald-600' : 'text-slate-400'}`}>
   {coords ? '✓ Ubicación fijada' : 'Ubicación exacta opcional'}
 </span>
