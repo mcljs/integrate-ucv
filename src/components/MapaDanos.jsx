@@ -197,7 +197,11 @@ useEffect(() => {
   }, [reportes, filtros, soloUrgentes, busqueda])
 
   function abrirFormVacio() { setCoords(null); setAutofill(null); setFormOpen(true) }
-  async function abrirFormEnPunto(latlng) { setCoords(latlng); setAutofill(null); setFormOpen(true); const i = await reverseGeocode(latlng.lat, latlng.lng); if (i) setAutofill(i) }
+function abrirFormEnPunto(latlng) {
+  setCoords(latlng)
+  setAutofill(null)
+  setFormOpen(true)
+}
   function reportarMiUbicacion() {
     if (typeof navigator === 'undefined' || !navigator.geolocation) return abrirFormVacio()
     navigator.geolocation.getCurrentPosition((p) => abrirFormEnPunto({ lat: p.coords.latitude, lng: p.coords.longitude }), () => abrirFormVacio(), { enableHighAccuracy: true, timeout: 8000 })
@@ -457,29 +461,21 @@ function usarMiUbicacion() {
   }
 
   navigator.geolocation.getCurrentPosition(
-    async (pos) => {
+    (pos) => {
       const c = {
         lat: pos.coords.latitude,
         lng: pos.coords.longitude,
       }
 
-      if (typeof setCoords === 'function') {
-        setCoords(c)
-      }
-
-      const i = await reverseGeocode(c.lat, c.lng)
-
-      if (i) {
-        setF((prev) => ({
-          ...prev,
-          direccion: i.direccion || prev.direccion,
-          ciudad: i.ciudad || prev.ciudad,
-          zona: i.zona || prev.zona,
-        }))
-      }
+      setCoords(c)
     },
-    () => alert('No se pudo obtener tu ubicación. Puedes escribir la dirección manualmente.'),
-    { enableHighAccuracy: true, timeout: 8000 }
+    () => {
+      alert('No se pudo obtener tu ubicación. Puedes escribir la dirección manualmente.')
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 8000,
+    }
   )
 }
   async function onFoto(e) { const file = e.target.files?.[0]; if (!file) return; setSubiendoFoto(true); try { set('foto', await comprimirImagen(file)) } catch { alert('No se pudo procesar la foto.') } setSubiendoFoto(false); e.target.value = '' }
