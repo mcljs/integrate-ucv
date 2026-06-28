@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { cargarCentrosApi } from '@/lib/centrosApi'
+import { cargarCentrosApi, crearCentroApi } from '@/lib/centrosApi'
 import {
   cargarNecesidadesApi, crearNecesidadApi, responderNecesidadApi,
   resolverNecesidadApi, reabrirNecesidadApi, suscribirNecesidades,
@@ -81,6 +81,7 @@ export default function RedPage() {
   const [error, setError] = useState('')
   const [chat, setChat] = useState(null)
   const [form, setForm] = useState(null)
+  const [formCentro, setFormCentro] = useState(false)
 
   // params aplicados tras montar
   const [initZona, setInitZona] = useState('todas')
@@ -168,10 +169,11 @@ export default function RedPage() {
       {error && <div className="mx-auto mt-3 max-w-2xl px-4"><div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" /><span>{error}</span></div></div>}
 
       {tab === 'centros'
-        ? <TabCentros centros={centros} loading={loadingC} onPedir={abrirForm} initZona={initZona} initCat={initCat} ready={ready} />
+        ? <TabCentros centros={centros} loading={loadingC} onPedir={abrirForm} onAgregarCentro={() => setFormCentro(true)} initZona={initZona} initCat={initCat} ready={ready} />
         : <TabSolicitudes neces={neces} loading={loadingN} onResponder={responder} onResolver={resolver} onReabrir={reabrir} onChat={setChat} onNueva={() => abrirForm(null)} initZona={initZona} ready={ready} highlight={highlight} clearHighlight={() => setHighlight(null)} />}
 
       {form && <FormNueva initial={form} onClose={() => setForm(null)} onSaved={() => { setForm(null); cargarNeces(); cambiarTab('solicitudes') }} />}
+      {formCentro && <FormCentro onClose={() => setFormCentro(false)} onSaved={() => { setFormCentro(false); cargarCentros() }} />}
       {chat && <ChatNecesidad necesidad={chat} onClose={() => { setChat(null); cargarNeces() }} />}
     </div>
   )
@@ -206,7 +208,7 @@ function BotonCompartir({ url, title, text, className = '' }) {
 }
 
 /* ============================== PESTAÑA CENTROS ============================== */
-function TabCentros({ centros, loading, onPedir, initZona, initCat, ready }) {
+function TabCentros({ centros, loading, onPedir, onAgregarCentro, initZona, initCat, ready }) {
   const [q, setQ] = useState('')
   const [cat, setCat] = useState('todas')
   const [zona, setZona] = useState('todas')
@@ -249,7 +251,7 @@ function TabCentros({ centros, loading, onPedir, initZona, initCat, ready }) {
         </div>
       </div>
 
-      <main className="mx-auto max-w-2xl px-4 py-3" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 1rem)' }}>
+      <main className="mx-auto max-w-2xl px-4 py-3 pb-28">
         {loading && !centros.length && <div className="flex flex-col items-center gap-2 py-20 text-slate-400"><Loader2 className="h-7 w-7 animate-spin" /><p className="text-sm">Cargando…</p></div>}
         {!loading && visibles.length === 0 && <div className="flex flex-col items-center gap-2 py-20 text-center text-slate-400"><MapPin className="h-9 w-9" /><p className="text-sm font-medium">No se encontró ningún centro.</p></div>}
         {visibles.length > 0 && <p className="mb-2 px-1 text-xs font-semibold text-slate-500">{visibles.length} centros</p>}
@@ -257,6 +259,12 @@ function TabCentros({ centros, loading, onPedir, initZona, initCat, ready }) {
           {visibles.map((c) => <CentroCard key={c.id} c={c} onPedir={() => onPedir(c)} />)}
         </div>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 p-3 backdrop-blur" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}>
+        <div className="mx-auto max-w-2xl">
+          <button onClick={onAgregarCentro} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a237e] py-3.5 text-base font-bold text-white shadow-lg active:bg-[#1a237e]/90"><Plus className="h-5 w-5" /> Agregar mi centro de acopio</button>
+        </div>
+      </div>
     </>
   )
 }
@@ -400,6 +408,119 @@ function NecesCard({ it, resaltada, onResponder, onResolver, onReabrir, onChat }
         {it.estado === 'abierto' && <button onClick={() => onResponder(it.id)} className="flex-1 rounded-lg bg-[#F5A623] py-2 text-sm font-bold text-white active:opacity-90">Yo ayudo</button>}
         {it.estado !== 'resuelto' && <button onClick={() => onResolver(it.id)} className="flex-1 rounded-lg bg-emerald-600 py-2 text-sm font-bold text-white active:opacity-90">Resuelto</button>}
         {it.estado === 'resuelto' && <button onClick={() => onReabrir(it.id)} className="flex-1 rounded-lg border border-slate-200 py-2 text-sm font-bold text-slate-500">Reabrir</button>}
+      </div>
+    </div>
+  )
+}
+
+/* ============================== FORM AGREGAR CENTRO ============================== */
+function FormCentro({ onClose, onSaved }) {
+  const [f, setF] = useState({ title: '', category: 'acopio', description: '', state: 'Distrito Capital', city: '', contact: '', address: '', lat: null, lng: null })
+  const [saving, setSaving] = useState(false)
+  const [geoStatus, setGeoStatus] = useState('') // '', 'buscando', 'ok', 'gps', 'error'
+  const set = (k, v) => setF((p) => ({ ...p, [k]: v }))
+  const input = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-base outline-none focus:border-[#F5A623] focus:bg-white focus:ring-2 focus:ring-[#F5A623]/20'
+  const label = 'mb-1.5 block text-sm font-bold text-[#1a237e]'
+
+  /* Geocoding: convierte la dirección escrita en coordenadas (OpenStreetMap, gratis) */
+  async function buscarDireccion() {
+    const texto = [f.address, f.city, f.state, 'Venezuela'].filter(Boolean).join(', ').trim()
+    if (!f.address.trim() && !f.city.trim()) return alert('Escribe la dirección o la ciudad primero.')
+    setGeoStatus('buscando')
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(texto)}`
+      const r = await fetch(url, { headers: { 'Accept-Language': 'es' } })
+      const data = await r.json()
+      if (data && data[0]) {
+        setF((p) => ({ ...p, lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }))
+        setGeoStatus('ok')
+      } else { setGeoStatus('error') }
+    } catch { setGeoStatus('error') }
+  }
+
+  /* GPS: usa la ubicación actual del teléfono */
+  function usarMiUbicacion() {
+    if (!navigator.geolocation) return alert('Tu dispositivo no permite ubicación.')
+    setGeoStatus('buscando')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setF((p) => ({ ...p, lat: pos.coords.latitude, lng: pos.coords.longitude })); setGeoStatus('gps') },
+      () => { setGeoStatus('error'); alert('No se pudo obtener la ubicación. Activa el GPS y permite el acceso.') },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
+
+  async function enviar() {
+    if (!f.title.trim()) return alert('Indica el nombre del centro.')
+    setSaving(true)
+    try {
+      await crearCentroApi({
+        title: f.title.trim(),
+        category: f.category,
+        description: [f.address, f.description].filter(Boolean).join(' — ') || null,
+        city: f.city, state: f.state, contact: f.contact,
+        lat: f.lat, lng: f.lng,
+      })
+      onSaved()
+    } catch (e) { alert('Error: ' + e.message) }
+    finally { setSaving(false) }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-slate-50">
+      <div className="mx-auto w-full max-w-xl px-4 pb-10" style={{ paddingTop: 'max(env(safe-area-inset-top), 1.25rem)' }}>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-extrabold text-[#1a237e]">Agregar centro de acopio</h2>
+          <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-lg bg-[#F5A623]/10 px-3 py-2 text-xs font-medium text-[#9a6207]">Registra tu universidad u organización para que aparezca en la red y puedas pedir/ofrecer recursos.</div>
+          <div><label className={label}>Nombre del centro *</label><input value={f.title} onChange={(e) => set('title', e.target.value)} className={input} placeholder="Ej. UCV - Facultad de Ciencias" /></div>
+          <div>
+            <label className={label}>Tipo</label>
+            <select value={f.category} onChange={(e) => set('category', e.target.value)} className={input}>
+              <option value="acopio">Acopio</option>
+              <option value="refugio">Refugio</option>
+              <option value="hospital">Hospital / Salud</option>
+              <option value="agua">Agua</option>
+              <option value="comida">Comida</option>
+              <option value="internet">Internet</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className={label}>Estado</label><select value={f.state} onChange={(e) => set('state', e.target.value)} className={input}>{ZONAS.map((z) => <option key={z}>{z}</option>)}</select></div>
+            <div><label className={label}>Ciudad / zona</label><input value={f.city} onChange={(e) => set('city', e.target.value)} className={input} placeholder="Chacao, Catia…" /></div>
+          </div>
+
+          {/* Dirección + ubicación exacta */}
+          <div>
+            <label className={label}>Dirección</label>
+            <input value={f.address} onChange={(e) => { set('address', e.target.value); setGeoStatus('') }} className={input} placeholder="Av. Principal, edificio, referencia…" />
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button onClick={buscarDireccion} disabled={geoStatus === 'buscando'} className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a237e]/5 px-3 py-2 text-xs font-bold text-[#1a237e] active:bg-[#1a237e]/10 disabled:opacity-60">
+                {geoStatus === 'buscando' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />} Buscar en mapa
+              </button>
+              <button onClick={usarMiUbicacion} disabled={geoStatus === 'buscando'} className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5A623]/15 px-3 py-2 text-xs font-bold text-[#9a6207] active:bg-[#F5A623]/25 disabled:opacity-60">
+                <MapPin className="h-3.5 w-3.5" /> Usar mi ubicación
+              </button>
+            </div>
+            {/* feedback de la ubicación */}
+            {geoStatus === 'ok' && <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-emerald-600"><Check className="h-3.5 w-3.5" /> Ubicación encontrada en el mapa</p>}
+            {geoStatus === 'gps' && <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-emerald-600"><Check className="h-3.5 w-3.5" /> Ubicación tomada del GPS</p>}
+            {geoStatus === 'error' && <p className="mt-2 text-xs font-semibold text-rose-600">No se encontró. Prueba con más detalle o usa tu ubicación.</p>}
+            {f.lat != null && f.lng != null && (
+              <a href={`https://www.google.com/maps/search/?api=1&query=${f.lat},${f.lng}`} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-[#1a237e] underline">
+                Ver punto exacto en Google Maps
+              </a>
+            )}
+          </div>
+
+          <div><label className={label}>Detalles / horario</label><textarea value={f.description} onChange={(e) => set('description', e.target.value)} rows={2} className={input + ' resize-none'} placeholder="Horario de atención, qué reciben…" /></div>
+          <div><label className={label}>Contacto</label><input value={f.contact} onChange={(e) => set('contact', e.target.value)} className={input} placeholder="Teléfono o WhatsApp" /></div>
+          <button onClick={enviar} disabled={saving} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a237e] py-3.5 text-base font-bold text-white active:bg-[#1a237e]/90 disabled:opacity-60">
+            {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Registrar centro'}
+          </button>
+        </div>
       </div>
     </div>
   )
