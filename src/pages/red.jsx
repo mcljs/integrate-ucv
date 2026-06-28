@@ -1,10 +1,10 @@
 'use client'
 
 /**
- * /red — Plataforma unificada con DOS pestañas (Centros / Solicitudes) + chat.
- * Soporta params de URL para compartir vistas directas:
+ * /red — Plataforma unificada (Centros / Solicitudes) + chat.
+ * Params de URL (se leen tras montar, desde window.location.search):
  *   ?tab=centros|solicitudes
- *   ?zona=Miranda  &  ?cat=hospital      (filtros)
+ *   ?zona=Miranda  &  ?cat=hospital
  *   ?s=ID    -> resalta/scrollea esa solicitud
  *   ?chat=ID -> abre el chat de esa solicitud
  *
@@ -12,8 +12,7 @@
  * Colócalo en: app/red/page.jsx
  */
 
-import { Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { cargarCentrosApi } from '@/lib/centrosApi'
 import {
   cargarNecesidadesApi, crearNecesidadApi, responderNecesidadApi,
@@ -53,36 +52,28 @@ const hace = (iso) => {
 }
 const FORM0 = { centro_id: null, centro_nombre: '', tipo: 'necesito', recurso: '', cantidad: '', urgencia: 'media', descripcion: '', state: 'Distrito Capital', city: '', contact: '' }
 
-/* Compartir: usa el share nativo del móvil; si no, copia al portapapeles */
+/* Lee los params reales del navegador (cliente). Devuelve {} en SSR. */
+function leerParams() {
+  if (typeof window === 'undefined') return {}
+  const p = new URLSearchParams(window.location.search)
+  return { tab: p.get('tab'), zona: p.get('zona'), cat: p.get('cat'), s: p.get('s'), chat: p.get('chat') }
+}
+/* Actualiza la URL sin recargar */
+function setUrlParam(key, value) {
+  if (typeof window === 'undefined') return
+  const p = new URLSearchParams(window.location.search)
+  if (value == null) p.delete(key); else p.set(key, value)
+  const qs = p.toString()
+  window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`)
+}
 async function compartir({ url, title, text }) {
-  try {
-    if (navigator.share) { await navigator.share({ title, text, url }); return 'shared' }
-  } catch { /* el usuario canceló: no hacemos nada */ return 'cancel' }
+  try { if (navigator.share) { await navigator.share({ title, text, url }); return 'shared' } } catch { return 'cancel' }
   try { await navigator.clipboard.writeText(url); return 'copied' } catch { return 'fail' }
 }
 
-/* ============================== PÁGINA (envoltura Suspense) ============================== */
+/* ============================== PÁGINA ============================== */
 export default function RedPage() {
-  // useSearchParams requiere Suspense en App Router
-  return (
-    <Suspense fallback={<div className="flex min-h-[100dvh] items-center justify-center bg-slate-50 text-slate-400"><Loader2 className="h-7 w-7 animate-spin" /></div>}>
-      <RedInner />
-    </Suspense>
-  )
-}
-
-function RedInner() {
-  const router = useRouter()
-  const params = useSearchParams()
-
-  // Lee params iniciales
-  const tabParam = params.get('tab') === 'solicitudes' ? 'solicitudes' : (params.get('chat') || params.get('s')) ? 'solicitudes' : params.get('tab') === 'centros' ? 'centros' : 'centros'
-  const zonaParam = ZONAS.includes(params.get('zona')) ? params.get('zona') : 'todas'
-  const catParam = params.get('cat') && CATS[params.get('cat')] ? params.get('cat') : 'todas'
-  const sParam = params.get('s') || null
-  const chatParam = params.get('chat') || null
-
-  const [tab, setTab] = useState(tabParam)
+  const [tab, setTab] = useState('centros')
   const [centros, setCentros] = useState([])
   const [neces, setNeces] = useState([])
   const [loadingC, setLoadingC] = useState(true)
@@ -90,7 +81,13 @@ function RedInner() {
   const [error, setError] = useState('')
   const [chat, setChat] = useState(null)
   const [form, setForm] = useState(null)
-  const [highlight, setHighlight] = useState(sParam) // id a resaltar
+
+  // params aplicados tras montar
+  const [initZona, setInitZona] = useState('todas')
+  const [initCat, setInitCat] = useState('todas')
+  const [highlight, setHighlight] = useState(null)
+  const [pendingChat, setPendingChat] = useState(null)
+  const [ready, setReady] = useState(false)
 
   const cargarCentros = useCallback(async () => {
     setLoadingC(true)
@@ -104,25 +101,32 @@ function RedInner() {
   useEffect(() => { cargarCentros(); cargarNeces() }, [cargarCentros, cargarNeces])
   useEffect(() => suscribirNecesidades(cargarNeces), [cargarNeces])
 
-  // Cuando llegan las necesidades, si venía ?chat=ID abre ese chat
+  // === Lee los params UNA vez, ya montado en el cliente ===
   useEffect(() => {
-    if (!chatParam || !neces.length) return
-    const n = neces.find((x) => x.id === chatParam)
-    if (n) setChat(n)
-  }, [chatParam, neces])
+    const { tab: t, zona, cat, s, chat: chatId } = leerParams()
+    if (zona && ZONAS.includes(zona)) setInitZona(zona)
+    if (cat && CATS[cat]) setInitCat(cat)
+    if (s) setHighlight(s)
+    if (chatId) setPendingChat(chatId)
+    // tab: explícito, o implícito si viene s/chat
+    if (t === 'solicitudes' || s || chatId) setTab('solicitudes')
+    else if (t === 'centros') setTab('centros')
+    setReady(true)
+  }, [])
 
-  // Mantiene la URL sincronizada con la pestaña activa (sin recargar)
-  const setTabUrl = useCallback((t) => {
-    setTab(t)
-    const sp = new URLSearchParams(Array.from(params.entries()))
-    sp.set('tab', t)
-    router.replace(`/red?${sp.toString()}`, { scroll: false })
-  }, [params, router])
+  // Cuando cargan las necesidades, si venía ?chat=ID abre ese chat
+  useEffect(() => {
+    if (!pendingChat || !neces.length) return
+    const n = neces.find((x) => x.id === pendingChat)
+    if (n) { setChat(n); setPendingChat(null) }
+  }, [pendingChat, neces])
+
+  const cambiarTab = useCallback((t) => { setTab(t); setUrlParam('tab', t) }, [])
 
   function abrirForm(centro) {
     if (centro) setForm({ ...FORM0, centro_id: centro.id, centro_nombre: centro.title, state: centro.state || 'Distrito Capital', city: centro.city || '' })
     else setForm({ ...FORM0 })
-    setTabUrl('solicitudes')
+    cambiarTab('solicitudes')
   }
 
   async function responder(id) {
@@ -155,8 +159,8 @@ function RedInner() {
             <button onClick={() => { cargarCentros(); cargarNeces() }} aria-label="Actualizar" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 active:bg-slate-100"><RefreshCw className={`h-4 w-4 ${(loadingC || loadingN) ? 'animate-spin' : ''}`} /></button>
           </div>
           <div className="mt-3 flex gap-1">
-            <TabBtn active={tab === 'centros'} onClick={() => setTabUrl('centros')} icon={Building2} label={`Centros (${centros.length})`} />
-            <TabBtn active={tab === 'solicitudes'} onClick={() => setTabUrl('solicitudes')} icon={HandHeart} label={`Solicitudes (${stats.abierto + stats.en_camino})`} />
+            <TabBtn active={tab === 'centros'} onClick={() => cambiarTab('centros')} icon={Building2} label={`Centros (${centros.length})`} />
+            <TabBtn active={tab === 'solicitudes'} onClick={() => cambiarTab('solicitudes')} icon={HandHeart} label={`Solicitudes (${stats.abierto + stats.en_camino})`} />
           </div>
         </div>
       </header>
@@ -164,10 +168,10 @@ function RedInner() {
       {error && <div className="mx-auto mt-3 max-w-2xl px-4"><div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" /><span>{error}</span></div></div>}
 
       {tab === 'centros'
-        ? <TabCentros centros={centros} loading={loadingC} onPedir={abrirForm} initZona={zonaParam} initCat={catParam} />
-        : <TabSolicitudes neces={neces} loading={loadingN} onResponder={responder} onResolver={resolver} onReabrir={reabrir} onChat={setChat} onNueva={() => abrirForm(null)} initZona={zonaParam} highlight={highlight} clearHighlight={() => setHighlight(null)} />}
+        ? <TabCentros centros={centros} loading={loadingC} onPedir={abrirForm} initZona={initZona} initCat={initCat} ready={ready} />
+        : <TabSolicitudes neces={neces} loading={loadingN} onResponder={responder} onResolver={resolver} onReabrir={reabrir} onChat={setChat} onNueva={() => abrirForm(null)} initZona={initZona} ready={ready} highlight={highlight} clearHighlight={() => setHighlight(null)} />}
 
-      {form && <FormNueva initial={form} onClose={() => setForm(null)} onSaved={() => { setForm(null); cargarNeces(); setTabUrl('solicitudes') }} />}
+      {form && <FormNueva initial={form} onClose={() => setForm(null)} onSaved={() => { setForm(null); cargarNeces(); cambiarTab('solicitudes') }} />}
       {chat && <ChatNecesidad necesidad={chat} onClose={() => { setChat(null); cargarNeces() }} />}
     </div>
   )
@@ -188,8 +192,6 @@ function Chip({ active, onClick, label, n, color }) {
     </button>
   )
 }
-
-/* Botón Compartir reutilizable */
 function BotonCompartir({ url, title, text, className = '' }) {
   const [ok, setOk] = useState(false)
   async function go() {
@@ -204,10 +206,13 @@ function BotonCompartir({ url, title, text, className = '' }) {
 }
 
 /* ============================== PESTAÑA CENTROS ============================== */
-function TabCentros({ centros, loading, onPedir, initZona, initCat }) {
+function TabCentros({ centros, loading, onPedir, initZona, initCat, ready }) {
   const [q, setQ] = useState('')
-  const [cat, setCat] = useState(initCat || 'todas')
-  const [zona, setZona] = useState(initZona || 'todas')
+  const [cat, setCat] = useState('todas')
+  const [zona, setZona] = useState('todas')
+
+  // aplica los filtros que venían en la URL, una vez listos
+  useEffect(() => { if (ready) { setCat(initCat); setZona(initZona) } }, [ready, initCat, initZona])
 
   const cats = useMemo(() => {
     const m = new Map()
@@ -286,10 +291,12 @@ function CentroCard({ c, onPedir }) {
 }
 
 /* ============================== PESTAÑA SOLICITUDES ============================== */
-function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, onChat, onNueva, initZona, highlight, clearHighlight }) {
+function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, onChat, onNueva, initZona, ready, highlight, clearHighlight }) {
   const [q, setQ] = useState('')
   const [fEstado, setFEstado] = useState('activos')
-  const [fZona, setFZona] = useState(initZona || 'todas')
+  const [fZona, setFZona] = useState('todas')
+
+  useEffect(() => { if (ready) setFZona(initZona) }, [ready, initZona])
 
   const visibles = useMemo(() => {
     const fq = fold(q)
@@ -304,15 +311,13 @@ function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, on
       })
   }, [neces, q, fEstado, fZona])
 
-  // Si viene ?s=ID, hace scroll a esa tarjeta y la resalta
   const refHL = useRef(null)
   useEffect(() => {
     if (!highlight) return
     const t = setTimeout(() => {
       refHL.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      const id = setTimeout(() => clearHighlight?.(), 2200)
-      return () => clearTimeout(id)
-    }, 300)
+      setTimeout(() => clearHighlight?.(), 2200)
+    }, 350)
     return () => clearTimeout(t)
   }, [highlight, visibles, clearHighlight])
 
