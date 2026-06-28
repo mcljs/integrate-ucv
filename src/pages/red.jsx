@@ -71,6 +71,20 @@ async function compartir({ url, title, text }) {
   try { await navigator.clipboard.writeText(url); return 'copied' } catch { return 'fail' }
 }
 
+/* Convierte un teléfono venezolano a formato wa.me (+58 sin 0 inicial).
+   Devuelve null si no parece un número válido. */
+function waLink(contact, mensaje) {
+  if (!contact) return null
+  let n = contact.replace(/[^\d+]/g, '')        // deja solo dígitos y +
+  if (n.startsWith('+')) n = n.slice(1)
+  if (n.startsWith('58')) { /* ya tiene país */ }
+  else if (n.startsWith('0')) n = '58' + n.slice(1) // 0412... -> 58412...
+  else if (n.length >= 9 && n.length <= 11) n = '58' + n // 412... -> 58412...
+  if (n.length < 11 || n.length > 13) return null // no parece celular válido
+  const txt = mensaje ? `?text=${encodeURIComponent(mensaje)}` : ''
+  return `https://wa.me/${n}${txt}`
+}
+
 /* ============================== PÁGINA ============================== */
 export default function RedPage() {
   const [tab, setTab] = useState('centros')
@@ -289,7 +303,12 @@ function CentroCard({ c, onPedir }) {
           {c.description && <p className="mt-1 text-sm text-slate-600">{c.description}</p>}
           <div className="mt-2 flex flex-wrap gap-2">
             <button onClick={onPedir} className="inline-flex items-center gap-1 rounded-lg bg-[#1a237e] px-2.5 py-1.5 text-xs font-bold text-white active:bg-[#1a237e]/90"><Plus className="h-3.5 w-3.5" />Pedir / ofrecer</button>
-            {tel && <a href={`tel:${tel}`} className="inline-flex items-center gap-1 rounded-lg bg-[#1a237e]/5 px-2.5 py-1.5 text-xs font-bold text-[#1a237e] active:bg-[#1a237e]/10"><Phone className="h-3.5 w-3.5" />{c.contact}</a>}
+            {(() => {
+              const wa = waLink(c.contact, `Hola 👋 Vi su centro "${c.title}" en la Red de Centros. Quiero coordinar/ayudar.`)
+              return wa
+                ? <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-[#25D366] px-2.5 py-1.5 text-xs font-bold text-white active:opacity-90"><MessageCircle className="h-3.5 w-3.5" />WhatsApp</a>
+                : (tel && <a href={`tel:${tel}`} className="inline-flex items-center gap-1 rounded-lg bg-[#1a237e]/5 px-2.5 py-1.5 text-xs font-bold text-[#1a237e] active:bg-[#1a237e]/10"><Phone className="h-3.5 w-3.5" />{c.contact}</a>)
+            })()}
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-[#F5A623]/15 px-2.5 py-1.5 text-xs font-bold text-[#9a6207] active:bg-[#F5A623]/25"><MapPin className="h-3.5 w-3.5" />Mapa</a>
           </div>
         </div>
@@ -377,9 +396,11 @@ function NecesCard({ it, resaltada, onResponder, onResolver, onReabrir, onChat }
   const est = ESTADOS[it.estado] || ESTADOS.abierto
   const EstIcon = est.icon
   const esOferta = it.tipo === 'ofrezco'
+  const recursos = (it.recurso || '').split('\n').filter(Boolean)
+  const multiple = recursos.length > 1
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.integrateucv.com'
   const shareUrl = `${baseUrl}/red?tab=solicitudes&s=${it.id}`
-  const shareText = `${esOferta ? 'OFRECE' : 'NECESITA'}: ${it.recurso}${it.cantidad ? ' · ' + it.cantidad : ''} — ${it.centro_nombre}`
+  const shareText = `${esOferta ? 'OFRECE' : 'NECESITA'}: ${recursos.join(', ')}${it.cantidad ? ' · ' + it.cantidad : ''} — ${it.centro_nombre}`
   return (
     <div className={`rounded-xl border bg-white p-3.5 shadow-sm ${resaltada ? 'flash ring-2 ring-[#F5A623]' : ''} ${it.estado === 'resuelto' ? 'opacity-60' : ''}`} style={{ borderLeft: `4px solid ${esOferta ? '#10b981' : urg.color}` }}>
       <div className="flex items-start justify-between gap-2">
@@ -388,17 +409,33 @@ function NecesCard({ it, resaltada, onResponder, onResolver, onReabrir, onChat }
             <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-extrabold ${esOferta ? 'bg-emerald-100 text-emerald-700' : 'bg-[#1a237e]/10 text-[#1a237e]'}`}>{esOferta ? 'OFRECE' : 'NECESITA'}</span>
             {it.estado !== 'resuelto' && <span className="rounded-md px-1.5 py-0.5 text-[10px] font-bold text-white" style={{ background: urg.color }}>{urg.label}</span>}
           </div>
-          <h3 className="mt-1 text-base font-extrabold text-slate-900">{it.recurso}{it.cantidad && <span className="font-bold text-slate-500"> · {it.cantidad}</span>}</h3>
+          <h3 className="mt-1 text-base font-extrabold text-slate-900">
+            {multiple ? `${recursos.length} insumos` : recursos[0]}
+            {it.cantidad && <span className="font-bold text-slate-500"> · {it.cantidad}</span>}
+          </h3>
         </div>
         <span className="flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold" style={{ background: est.color + '18', color: est.color }}><EstIcon className="h-3 w-3" />{est.label}</span>
       </div>
+
+      {multiple && (
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {recursos.map((r, i) => <span key={i} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">{r}</span>)}
+        </div>
+      )}
+
       <div className="mt-1 text-sm font-semibold text-[#1a237e]">{it.centro_nombre}</div>
       <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-slate-500">
         {(it.city || it.state) && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{[it.city, it.state].filter(Boolean).join(', ')}</span>}
         <span>{hace(it.created_at)}</span>
       </div>
       {it.descripcion && <p className="mt-1.5 text-sm text-slate-600">{it.descripcion}</p>}
-      {it.contact && <a href={`tel:${it.contact}`} className="mt-1.5 inline-flex items-center gap-1 text-sm font-semibold text-[#1a237e]"><Phone className="h-3.5 w-3.5" />{it.contact}</a>}
+      {(() => {
+        const msg = `Hola 👋 Vi en la Red de Centros que ${it.tipo === 'ofrezco' ? 'ofrecen' : 'necesitan'}: ${recursos.join(', ')} (${it.centro_nombre}). Quiero ayudar/coordinar.`
+        const wa = waLink(it.contact, msg)
+        return wa
+          ? <a href={wa} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-2 text-sm font-bold text-white active:opacity-90"><MessageCircle className="h-4 w-4" />Escribir por WhatsApp</a>
+          : (it.contact && <a href={`tel:${it.contact}`} className="mt-1.5 inline-flex items-center gap-1 text-sm font-semibold text-[#1a237e]"><Phone className="h-3.5 w-3.5" />{it.contact}</a>)
+      })()}
       {it.respondido_por && it.estado !== 'resuelto' && <p className="mt-1.5 text-xs font-semibold text-amber-600">🚚 Apoya: {it.respondido_por}</p>}
       <div className="mt-3 flex flex-wrap gap-2">
         <button onClick={onChat} className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1a237e]/20 bg-[#1a237e]/5 px-3 py-2 text-sm font-bold text-[#1a237e] active:bg-[#1a237e]/10">
@@ -592,16 +629,28 @@ function FormCentro({ onClose, onSaved }) {
 /* ============================== FORMULARIO ============================== */
 function FormNueva({ initial, onClose, onSaved }) {
   const [f, setF] = useState(initial)
+  const [recursos, setRecursos] = useState(initial.recurso ? initial.recurso.split('\n').filter(Boolean) : [])
+  const [recInput, setRecInput] = useState('')
   const [saving, setSaving] = useState(false)
   const set = (k, v) => setF((p) => ({ ...p, [k]: v }))
   const input = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-base outline-none focus:border-[#F5A623] focus:bg-white focus:ring-2 focus:ring-[#F5A623]/20'
   const label = 'mb-1.5 block text-sm font-bold text-[#1a237e]'
 
+  function addRecurso() {
+    const t = recInput.trim()
+    if (!t) return
+    setRecursos((p) => p.includes(t) ? p : [...p, t])
+    setRecInput('')
+  }
+  function quitarRecurso(i) { setRecursos((p) => p.filter((_, idx) => idx !== i)) }
+
   async function enviar() {
     if (!f.centro_nombre.trim()) return alert('Indica el nombre del centro.')
-    if (!f.recurso.trim()) return alert('Indica el recurso.')
+    const lista = [...recursos]
+    if (recInput.trim()) lista.push(recInput.trim()) // por si dejó texto sin "agregar"
+    if (lista.length === 0) return alert('Agrega al menos un recurso.')
     setSaving(true)
-    try { await crearNecesidadApi({ ...f, centro_nombre: f.centro_nombre.trim(), recurso: f.recurso.trim() }); onSaved() }
+    try { await crearNecesidadApi({ ...f, centro_nombre: f.centro_nombre.trim(), recurso: lista.join('\n') }); onSaved() }
     catch (e) { alert('Error: ' + e.message) }
     finally { setSaving(false) }
   }
@@ -623,10 +672,33 @@ function FormNueva({ initial, onClose, onSaved }) {
             </div>
           </div>
           <div><label className={label}>Nombre del centro *</label><input value={f.centro_nombre} onChange={(e) => set('centro_nombre', e.target.value)} className={input} placeholder="Ej. Refugio Plaza Altamira" /></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div><label className={label}>Recurso *</label><input value={f.recurso} onChange={(e) => set('recurso', e.target.value)} className={input} placeholder="Agua, gasas, pañales…" /></div>
-            <div><label className={label}>Cantidad</label><input value={f.cantidad} onChange={(e) => set('cantidad', e.target.value)} className={input} placeholder="200 L, 10 cajas…" /></div>
+
+          {/* Recursos múltiples (etiquetas) */}
+          <div>
+            <label className={label}>Recursos * <span className="font-normal text-slate-400">(agrega uno por uno)</span></label>
+            <div className="flex gap-2">
+              <input
+                value={recInput}
+                onChange={(e) => setRecInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addRecurso() } }}
+                className={input}
+                placeholder="Ej. Compresas, gasas, agua…"
+              />
+              <button onClick={addRecurso} className="shrink-0 rounded-xl bg-[#1a237e] px-4 text-sm font-bold text-white active:bg-[#1a237e]/90">Agregar</button>
+            </div>
+            {recursos.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {recursos.map((r, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 rounded-full bg-[#1a237e]/10 py-1 pl-3 pr-1.5 text-sm font-semibold text-[#1a237e]">
+                    {r}
+                    <button onClick={() => quitarRecurso(i)} className="flex h-5 w-5 items-center justify-center rounded-full text-[#1a237e]/60 active:bg-[#1a237e]/20"><X className="h-3.5 w-3.5" /></button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
+
+          <div><label className={label}>Cantidad <span className="font-normal text-slate-400">(opcional)</span></label><input value={f.cantidad} onChange={(e) => set('cantidad', e.target.value)} className={input} placeholder="200 L, 10 cajas, lo que se pueda…" /></div>
           <div>
             <label className={label}>Urgencia</label>
             <div className="grid grid-cols-3 gap-2">
