@@ -1,16 +1,19 @@
 'use client'
 
 /**
- * /red — Plataforma unificada con DOS pestañas:
- *   • Centros: directorio (84 centros) con buscador. Cada centro tiene
- *     "Pedir / ofrecer" (abre el formulario con el nombre ya puesto).
- *   • Solicitudes: tablero de necesidades (pedir/ofrecer/ayudar/resolver) + chat.
+ * /red — Plataforma unificada con DOS pestañas (Centros / Solicitudes) + chat.
+ * Soporta params de URL para compartir vistas directas:
+ *   ?tab=centros|solicitudes
+ *   ?zona=Miranda  &  ?cat=hospital      (filtros)
+ *   ?s=ID    -> resalta/scrollea esa solicitud
+ *   ?chat=ID -> abre el chat de esa solicitud
  *
  * Requiere: lib/centrosApi.js, lib/necesidadesApi.js, components/ChatNecesidad.jsx
  * Colócalo en: app/red/page.jsx
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { cargarCentrosApi } from '@/lib/centrosApi'
 import {
   cargarNecesidadesApi, crearNecesidadApi, responderNecesidadApi,
@@ -19,7 +22,7 @@ import {
 import ChatNecesidad from '@/components/ChatNecesidad'
 import {
   Plus, Search, X, RefreshCw, HandHeart, PackageOpen, CheckCircle2, Truck,
-  AlertTriangle, Loader2, MapPin, Phone, MessageCircle,
+  AlertTriangle, Loader2, MapPin, Phone, MessageCircle, Share2, Check,
   Package, Home, Cross, Droplet, Utensils, Wifi, HelpCircle, Building2,
 } from 'lucide-react'
 import { NextSeo } from 'next-seo'
@@ -50,18 +53,44 @@ const hace = (iso) => {
 }
 const FORM0 = { centro_id: null, centro_nombre: '', tipo: 'necesito', recurso: '', cantidad: '', urgencia: 'media', descripcion: '', state: 'Distrito Capital', city: '', contact: '' }
 
-/* ============================== PÁGINA ============================== */
-export default function RedPage() {
-  const [tab, setTab] = useState('centros') // 'centros' | 'solicitudes'
+/* Compartir: usa el share nativo del móvil; si no, copia al portapapeles */
+async function compartir({ url, title, text }) {
+  try {
+    if (navigator.share) { await navigator.share({ title, text, url }); return 'shared' }
+  } catch { /* el usuario canceló: no hacemos nada */ return 'cancel' }
+  try { await navigator.clipboard.writeText(url); return 'copied' } catch { return 'fail' }
+}
 
+/* ============================== PÁGINA (envoltura Suspense) ============================== */
+export default function RedPage() {
+  // useSearchParams requiere Suspense en App Router
+  return (
+    <Suspense fallback={<div className="flex min-h-[100dvh] items-center justify-center bg-slate-50 text-slate-400"><Loader2 className="h-7 w-7 animate-spin" /></div>}>
+      <RedInner />
+    </Suspense>
+  )
+}
+
+function RedInner() {
+  const router = useRouter()
+  const params = useSearchParams()
+
+  // Lee params iniciales
+  const tabParam = params.get('tab') === 'solicitudes' ? 'solicitudes' : (params.get('chat') || params.get('s')) ? 'solicitudes' : params.get('tab') === 'centros' ? 'centros' : 'centros'
+  const zonaParam = ZONAS.includes(params.get('zona')) ? params.get('zona') : 'todas'
+  const catParam = params.get('cat') && CATS[params.get('cat')] ? params.get('cat') : 'todas'
+  const sParam = params.get('s') || null
+  const chatParam = params.get('chat') || null
+
+  const [tab, setTab] = useState(tabParam)
   const [centros, setCentros] = useState([])
   const [neces, setNeces] = useState([])
   const [loadingC, setLoadingC] = useState(true)
   const [loadingN, setLoadingN] = useState(true)
   const [error, setError] = useState('')
-
   const [chat, setChat] = useState(null)
-  const [form, setForm] = useState(null) // objeto FORM0 cuando el form está abierto
+  const [form, setForm] = useState(null)
+  const [highlight, setHighlight] = useState(sParam) // id a resaltar
 
   const cargarCentros = useCallback(async () => {
     setLoadingC(true)
@@ -75,11 +104,25 @@ export default function RedPage() {
   useEffect(() => { cargarCentros(); cargarNeces() }, [cargarCentros, cargarNeces])
   useEffect(() => suscribirNecesidades(cargarNeces), [cargarNeces])
 
-  /* abre el formulario; si viene un centro, precarga su nombre/zona */
+  // Cuando llegan las necesidades, si venía ?chat=ID abre ese chat
+  useEffect(() => {
+    if (!chatParam || !neces.length) return
+    const n = neces.find((x) => x.id === chatParam)
+    if (n) setChat(n)
+  }, [chatParam, neces])
+
+  // Mantiene la URL sincronizada con la pestaña activa (sin recargar)
+  const setTabUrl = useCallback((t) => {
+    setTab(t)
+    const sp = new URLSearchParams(Array.from(params.entries()))
+    sp.set('tab', t)
+    router.replace(`/red?${sp.toString()}`, { scroll: false })
+  }, [params, router])
+
   function abrirForm(centro) {
     if (centro) setForm({ ...FORM0, centro_id: centro.id, centro_nombre: centro.title, state: centro.state || 'Distrito Capital', city: centro.city || '' })
     else setForm({ ...FORM0 })
-    setTab('solicitudes')
+    setTabUrl('solicitudes')
   }
 
   async function responder(id) {
@@ -97,11 +140,10 @@ export default function RedPage() {
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 text-slate-900">
-      <style>{`.no-sb::-webkit-scrollbar{display:none}.no-sb{-ms-overflow-style:none;scrollbar-width:none}`}</style>
-<NextSeo
-  title={`Red de Centros de Acopio · Comunicación y recursos | ${process.env.NEXT_PUBLIC_SITE_TITLE}`}
-/>
-      {/* Header + pestañas */}
+      <style>{`.no-sb::-webkit-scrollbar{display:none}.no-sb{-ms-overflow-style:none;scrollbar-width:none}
+        @keyframes flash { 0%,100%{background:#fff} 30%{background:#fff7e6} } .flash{animation:flash 2s ease}`}</style>
+      <NextSeo title={`Red de Centros de Acopio · Comunicación y recursos | ${process.env.NEXT_PUBLIC_SITE_TITLE}`} />
+
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="mx-auto max-w-2xl px-4 pb-0 pt-3">
           <div className="flex items-center gap-2.5">
@@ -112,10 +154,9 @@ export default function RedPage() {
             </div>
             <button onClick={() => { cargarCentros(); cargarNeces() }} aria-label="Actualizar" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 active:bg-slate-100"><RefreshCw className={`h-4 w-4 ${(loadingC || loadingN) ? 'animate-spin' : ''}`} /></button>
           </div>
-
           <div className="mt-3 flex gap-1">
-            <TabBtn active={tab === 'centros'} onClick={() => setTab('centros')} icon={Building2} label={`Centros (${centros.length})`} />
-            <TabBtn active={tab === 'solicitudes'} onClick={() => setTab('solicitudes')} icon={HandHeart} label={`Solicitudes (${stats.abierto + stats.en_camino})`} />
+            <TabBtn active={tab === 'centros'} onClick={() => setTabUrl('centros')} icon={Building2} label={`Centros (${centros.length})`} />
+            <TabBtn active={tab === 'solicitudes'} onClick={() => setTabUrl('solicitudes')} icon={HandHeart} label={`Solicitudes (${stats.abierto + stats.en_camino})`} />
           </div>
         </div>
       </header>
@@ -123,10 +164,10 @@ export default function RedPage() {
       {error && <div className="mx-auto mt-3 max-w-2xl px-4"><div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" /><span>{error}</span></div></div>}
 
       {tab === 'centros'
-        ? <TabCentros centros={centros} loading={loadingC} onPedir={abrirForm} />
-        : <TabSolicitudes neces={neces} loading={loadingN} onResponder={responder} onResolver={resolver} onReabrir={reabrir} onChat={setChat} onNueva={() => abrirForm(null)} />}
+        ? <TabCentros centros={centros} loading={loadingC} onPedir={abrirForm} initZona={zonaParam} initCat={catParam} />
+        : <TabSolicitudes neces={neces} loading={loadingN} onResponder={responder} onResolver={resolver} onReabrir={reabrir} onChat={setChat} onNueva={() => abrirForm(null)} initZona={zonaParam} highlight={highlight} clearHighlight={() => setHighlight(null)} />}
 
-      {form && <FormNueva initial={form} onClose={() => setForm(null)} onSaved={() => { setForm(null); cargarNeces(); setTab('solicitudes') }} />}
+      {form && <FormNueva initial={form} onClose={() => setForm(null)} onSaved={() => { setForm(null); cargarNeces(); setTabUrl('solicitudes') }} />}
       {chat && <ChatNecesidad necesidad={chat} onClose={() => { setChat(null); cargarNeces() }} />}
     </div>
   )
@@ -148,11 +189,25 @@ function Chip({ active, onClick, label, n, color }) {
   )
 }
 
+/* Botón Compartir reutilizable */
+function BotonCompartir({ url, title, text, className = '' }) {
+  const [ok, setOk] = useState(false)
+  async function go() {
+    const r = await compartir({ url, title, text })
+    if (r === 'copied' || r === 'shared') { setOk(true); setTimeout(() => setOk(false), 1800) }
+  }
+  return (
+    <button onClick={go} className={`flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 active:bg-slate-100 ${className}`}>
+      {ok ? <><Check className="h-4 w-4 text-emerald-600" /> Copiado</> : <><Share2 className="h-4 w-4" /> Compartir</>}
+    </button>
+  )
+}
+
 /* ============================== PESTAÑA CENTROS ============================== */
-function TabCentros({ centros, loading, onPedir }) {
+function TabCentros({ centros, loading, onPedir, initZona, initCat }) {
   const [q, setQ] = useState('')
-  const [cat, setCat] = useState('todas')
-  const [zona, setZona] = useState('todas')
+  const [cat, setCat] = useState(initCat || 'todas')
+  const [zona, setZona] = useState(initZona || 'todas')
 
   const cats = useMemo(() => {
     const m = new Map()
@@ -231,10 +286,10 @@ function CentroCard({ c, onPedir }) {
 }
 
 /* ============================== PESTAÑA SOLICITUDES ============================== */
-function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, onChat, onNueva }) {
+function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, onChat, onNueva, initZona, highlight, clearHighlight }) {
   const [q, setQ] = useState('')
   const [fEstado, setFEstado] = useState('activos')
-  const [fZona, setFZona] = useState('todas')
+  const [fZona, setFZona] = useState(initZona || 'todas')
 
   const visibles = useMemo(() => {
     const fq = fold(q)
@@ -248,6 +303,18 @@ function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, on
         return new Date(b.created_at) - new Date(a.created_at)
       })
   }, [neces, q, fEstado, fZona])
+
+  // Si viene ?s=ID, hace scroll a esa tarjeta y la resalta
+  const refHL = useRef(null)
+  useEffect(() => {
+    if (!highlight) return
+    const t = setTimeout(() => {
+      refHL.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const id = setTimeout(() => clearHighlight?.(), 2200)
+      return () => clearTimeout(id)
+    }, 300)
+    return () => clearTimeout(t)
+  }, [highlight, visibles, clearHighlight])
 
   return (
     <>
@@ -275,7 +342,11 @@ function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, on
         {loading && !neces.length && <div className="flex flex-col items-center gap-2 py-20 text-slate-400"><Loader2 className="h-7 w-7 animate-spin" /><p className="text-sm">Cargando…</p></div>}
         {!loading && visibles.length === 0 && <div className="flex flex-col items-center gap-2 py-20 text-center text-slate-400"><PackageOpen className="h-9 w-9" /><p className="text-sm font-medium">No hay solicitudes aquí.</p><p className="text-xs">Pulsa el botón de abajo para publicar la primera.</p></div>}
         <div className="space-y-2.5">
-          {visibles.map((it) => <NecesCard key={it.id} it={it} onResponder={onResponder} onResolver={onResolver} onReabrir={onReabrir} onChat={() => onChat(it)} />)}
+          {visibles.map((it) => (
+            <div key={it.id} ref={highlight === it.id ? refHL : null}>
+              <NecesCard it={it} resaltada={highlight === it.id} onResponder={onResponder} onResolver={onResolver} onReabrir={onReabrir} onChat={() => onChat(it)} />
+            </div>
+          ))}
         </div>
       </main>
 
@@ -288,13 +359,16 @@ function TabSolicitudes({ neces, loading, onResponder, onResolver, onReabrir, on
   )
 }
 
-function NecesCard({ it, onResponder, onResolver, onReabrir, onChat }) {
+function NecesCard({ it, resaltada, onResponder, onResolver, onReabrir, onChat }) {
   const urg = URGENCIAS[it.urgencia] || URGENCIAS.media
   const est = ESTADOS[it.estado] || ESTADOS.abierto
   const EstIcon = est.icon
   const esOferta = it.tipo === 'ofrezco'
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.integrateucv.com'
+  const shareUrl = `${baseUrl}/red?tab=solicitudes&s=${it.id}`
+  const shareText = `${esOferta ? 'OFRECE' : 'NECESITA'}: ${it.recurso}${it.cantidad ? ' · ' + it.cantidad : ''} — ${it.centro_nombre}`
   return (
-    <div className={`rounded-xl border bg-white p-3.5 shadow-sm ${it.estado === 'resuelto' ? 'opacity-60' : ''}`} style={{ borderLeft: `4px solid ${esOferta ? '#10b981' : urg.color}` }}>
+    <div className={`rounded-xl border bg-white p-3.5 shadow-sm ${resaltada ? 'flash ring-2 ring-[#F5A623]' : ''} ${it.estado === 'resuelto' ? 'opacity-60' : ''}`} style={{ borderLeft: `4px solid ${esOferta ? '#10b981' : urg.color}` }}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
@@ -313,10 +387,11 @@ function NecesCard({ it, onResponder, onResolver, onReabrir, onChat }) {
       {it.descripcion && <p className="mt-1.5 text-sm text-slate-600">{it.descripcion}</p>}
       {it.contact && <a href={`tel:${it.contact}`} className="mt-1.5 inline-flex items-center gap-1 text-sm font-semibold text-[#1a237e]"><Phone className="h-3.5 w-3.5" />{it.contact}</a>}
       {it.respondido_por && it.estado !== 'resuelto' && <p className="mt-1.5 text-xs font-semibold text-amber-600">🚚 Apoya: {it.respondido_por}</p>}
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         <button onClick={onChat} className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1a237e]/20 bg-[#1a237e]/5 px-3 py-2 text-sm font-bold text-[#1a237e] active:bg-[#1a237e]/10">
           <MessageCircle className="h-4 w-4" /> Chat{it.mensajes_count > 0 && <span className="rounded-full bg-[#1a237e] px-1.5 text-[10px] text-white">{it.mensajes_count}</span>}
         </button>
+        <BotonCompartir url={shareUrl} title="Solicitud — Red de Centros" text={shareText} />
         {it.estado === 'abierto' && <button onClick={() => onResponder(it.id)} className="flex-1 rounded-lg bg-[#F5A623] py-2 text-sm font-bold text-white active:opacity-90">Yo ayudo</button>}
         {it.estado !== 'resuelto' && <button onClick={() => onResolver(it.id)} className="flex-1 rounded-lg bg-emerald-600 py-2 text-sm font-bold text-white active:opacity-90">Resuelto</button>}
         {it.estado === 'resuelto' && <button onClick={() => onReabrir(it.id)} className="flex-1 rounded-lg border border-slate-200 py-2 text-sm font-bold text-slate-500">Reabrir</button>}

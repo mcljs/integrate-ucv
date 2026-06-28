@@ -2,16 +2,20 @@
 
 /**
  * ChatNecesidad — hilo de mensajes de una solicitud, en tiempo real.
- * Rematado para móvil real: usa altura dinámica del visualViewport para que
- * el teclado NO tape el input, respeta el notch (safe-area) y evita el zoom
- * automático de iOS (inputs a 16px).
+ * Rematado para móvil (teclado/visualViewport, safe-area, iOS 16px) +
+ * botón Compartir que copia el link directo al chat (?chat=ID).
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { cargarMensajesApi, enviarMensajeApi, suscribirMensajes } from '@/lib/mensajesApi'
-import { X, Send, Loader2 } from 'lucide-react'
+import { X, Send, Loader2, Share2, Check } from 'lucide-react'
 
 const KEY_AUTOR = 'red_centros_autor'
+
+async function compartir({ url, title, text }) {
+  try { if (navigator.share) { await navigator.share({ title, text, url }); return 'shared' } } catch { return 'cancel' }
+  try { await navigator.clipboard.writeText(url); return 'copied' } catch { return 'fail' }
+}
 
 export default function ChatNecesidad({ necesidad, onClose }) {
   const [msgs, setMsgs] = useState([])
@@ -19,30 +23,26 @@ export default function ChatNecesidad({ necesidad, onClose }) {
   const [autor, setAutor] = useState('')
   const [texto, setTexto] = useState('')
   const [enviando, setEnviando] = useState(false)
-  const [vh, setVh] = useState(null) // alto visible real (descontando teclado)
+  const [vh, setVh] = useState(null)
+  const [shared, setShared] = useState(false)
   const finRef = useRef(null)
 
-  // Bloquea el scroll del fondo mientras el chat está abierto
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = prev }
   }, [])
 
-  // Altura real con visualViewport (clave para que el teclado no tape el input)
   useEffect(() => {
     const vv = typeof window !== 'undefined' ? window.visualViewport : null
     if (!vv) return
     const update = () => setVh(vv.height)
     update()
-    vv.addEventListener('resize', update)
-    vv.addEventListener('scroll', update)
+    vv.addEventListener('resize', update); vv.addEventListener('scroll', update)
     return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update) }
   }, [])
 
-  useEffect(() => {
-    try { const a = localStorage.getItem(KEY_AUTOR); if (a) setAutor(a) } catch {}
-  }, [])
+  useEffect(() => { try { const a = localStorage.getItem(KEY_AUTOR); if (a) setAutor(a) } catch {} }, [])
 
   const scrollFin = useCallback(() => { setTimeout(() => finRef.current?.scrollIntoView({ behavior: 'smooth' }), 60) }, [])
 
@@ -50,8 +50,7 @@ export default function ChatNecesidad({ necesidad, onClose }) {
     let activo = true
     cargarMensajesApi(necesidad.id).then((d) => { if (activo) { setMsgs(d); setLoading(false); scrollFin() } }).catch(() => setLoading(false))
     const off = suscribirMensajes(necesidad.id, (nuevo) => {
-      setMsgs((prev) => prev.some((m) => m.id === nuevo.id) ? prev : [...prev, nuevo])
-      scrollFin()
+      setMsgs((prev) => prev.some((m) => m.id === nuevo.id) ? prev : [...prev, nuevo]); scrollFin()
     })
     return () => { activo = false; off() }
   }, [necesidad.id, scrollFin])
@@ -69,23 +68,30 @@ export default function ChatNecesidad({ necesidad, onClose }) {
     finally { setEnviando(false) }
   }
 
-  // Si tenemos vh del visualViewport lo usamos; si no, 100dvh
+  async function onShare() {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://www.integrateucv.com'
+    const url = `${baseUrl}/red?chat=${necesidad.id}`
+    const r = await compartir({ url, title: 'Chat — Red de Centros', text: `Coordinemos: ${necesidad.recurso} — ${necesidad.centro_nombre}` })
+    if (r === 'copied' || r === 'shared') { setShared(true); setTimeout(() => setShared(false), 1800) }
+  }
+
   const alto = vh ? `${vh}px` : '100dvh'
 
   return (
     <div className="fixed inset-0 z-[120] flex flex-col bg-white" style={{ height: alto }}>
-      {/* header (respeta el notch) */}
       <div className="shrink-0 border-b border-slate-200 px-3 pb-2" style={{ paddingTop: 'max(env(safe-area-inset-top), 0.75rem)' }}>
         <div className="mx-auto flex max-w-2xl items-center gap-2">
           <button onClick={onClose} aria-label="Cerrar" className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 active:bg-slate-100"><X className="h-5 w-5" /></button>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h2 className="truncate text-sm font-extrabold text-[#1a237e]">{necesidad.recurso}{necesidad.cantidad ? ` · ${necesidad.cantidad}` : ''}</h2>
             <p className="truncate text-xs text-slate-500">{necesidad.centro_nombre}</p>
           </div>
+          <button onClick={onShare} aria-label="Compartir" className="flex h-10 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-600 active:bg-slate-100">
+            {shared ? <><Check className="h-4 w-4 text-emerald-600" /> Copiado</> : <><Share2 className="h-4 w-4" /> Compartir</>}
+          </button>
         </div>
       </div>
 
-      {/* nombre del autor */}
       <div className="shrink-0 border-b border-slate-100 bg-slate-50 px-3 py-2">
         <div className="mx-auto max-w-2xl">
           <input value={autor} onChange={(e) => setAutor(e.target.value)} placeholder="Tu nombre o centro"
@@ -93,7 +99,6 @@ export default function ChatNecesidad({ necesidad, onClose }) {
         </div>
       </div>
 
-      {/* mensajes (esta zona es la que hace scroll) */}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
         <div className="mx-auto max-w-2xl space-y-2">
           {loading && <div className="flex justify-center py-10 text-slate-400"><Loader2 className="h-6 w-6 animate-spin" /></div>}
@@ -114,7 +119,6 @@ export default function ChatNecesidad({ necesidad, onClose }) {
         </div>
       </div>
 
-      {/* input (respeta el safe-area de abajo) */}
       <div className="shrink-0 border-t border-slate-200 bg-white px-3 pt-2" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}>
         <div className="mx-auto flex max-w-2xl items-end gap-2">
           <textarea value={texto} onChange={(e) => setTexto(e.target.value)} rows={1}
