@@ -303,11 +303,10 @@ function CentroCard({ c, onPedir }) {
           {c.description && <p className="mt-1 text-sm text-slate-600">{c.description}</p>}
           <div className="mt-2 flex flex-wrap gap-2">
             <button onClick={onPedir} className="inline-flex items-center gap-1 rounded-lg bg-[#1a237e] px-2.5 py-1.5 text-xs font-bold text-white active:bg-[#1a237e]/90"><Plus className="h-3.5 w-3.5" />Pedir / ofrecer</button>
+            {tel && <a href={`tel:${tel}`} className="inline-flex items-center gap-1 rounded-lg bg-[#1a237e]/5 px-2.5 py-1.5 text-xs font-bold text-[#1a237e] active:bg-[#1a237e]/10"><Phone className="h-3.5 w-3.5" />{c.contact}</a>}
             {(() => {
               const wa = waLink(c.contact, `Hola 👋 Vi su centro "${c.title}" en la Red de Centros. Quiero coordinar/ayudar.`)
-              return wa
-                ? <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-[#25D366] px-2.5 py-1.5 text-xs font-bold text-white active:opacity-90"><MessageCircle className="h-3.5 w-3.5" />WhatsApp</a>
-                : (tel && <a href={`tel:${tel}`} className="inline-flex items-center gap-1 rounded-lg bg-[#1a237e]/5 px-2.5 py-1.5 text-xs font-bold text-[#1a237e] active:bg-[#1a237e]/10"><Phone className="h-3.5 w-3.5" />{c.contact}</a>)
+              return wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-[#25D366] px-2.5 py-1.5 text-xs font-bold text-white active:opacity-90"><MessageCircle className="h-3.5 w-3.5" />WhatsApp</a>
             })()}
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-[#F5A623]/15 px-2.5 py-1.5 text-xs font-bold text-[#9a6207] active:bg-[#F5A623]/25"><MapPin className="h-3.5 w-3.5" />Mapa</a>
           </div>
@@ -429,13 +428,16 @@ function NecesCard({ it, resaltada, onResponder, onResolver, onReabrir, onChat }
         <span>{hace(it.created_at)}</span>
       </div>
       {it.descripcion && <p className="mt-1.5 text-sm text-slate-600">{it.descripcion}</p>}
-      {(() => {
-        const msg = `Hola 👋 Vi en la Red de Centros que ${it.tipo === 'ofrezco' ? 'ofrecen' : 'necesitan'}: ${recursos.join(', ')} (${it.centro_nombre}). Quiero ayudar/coordinar.`
-        const wa = waLink(it.contact, msg)
-        return wa
-          ? <a href={wa} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-2 text-sm font-bold text-white active:opacity-90"><MessageCircle className="h-4 w-4" />Escribir por WhatsApp</a>
-          : (it.contact && <a href={`tel:${it.contact}`} className="mt-1.5 inline-flex items-center gap-1 text-sm font-semibold text-[#1a237e]"><Phone className="h-3.5 w-3.5" />{it.contact}</a>)
-      })()}
+      {it.contact && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <a href={`tel:${it.contact.replace(/[^\d+]/g, '')}`} className="inline-flex items-center gap-1 text-sm font-semibold text-[#1a237e]"><Phone className="h-3.5 w-3.5" />{it.contact}</a>
+          {(() => {
+            const msg = `Hola 👋 Vi en la Red de Centros que ${it.tipo === 'ofrezco' ? 'ofrecen' : 'necesitan'}: ${recursos.join(', ')} (${it.centro_nombre}). Quiero ayudar/coordinar.`
+            const wa = waLink(it.contact, msg)
+            return wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-1.5 text-sm font-bold text-white active:opacity-90"><MessageCircle className="h-4 w-4" />WhatsApp</a>
+          })()}
+        </div>
+      )}
       {it.respondido_por && it.estado !== 'resuelto' && <p className="mt-1.5 text-xs font-semibold text-amber-600">🚚 Apoya: {it.respondido_por}</p>}
       <div className="mt-3 flex flex-wrap gap-2">
         <button onClick={onChat} className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1a237e]/20 bg-[#1a237e]/5 px-3 py-2 text-sm font-bold text-[#1a237e] active:bg-[#1a237e]/10">
