@@ -417,33 +417,76 @@ function NecesCard({ it, resaltada, onResponder, onResolver, onReabrir, onChat }
 function FormCentro({ onClose, onSaved }) {
   const [f, setF] = useState({ title: '', category: 'acopio', description: '', state: 'Distrito Capital', city: '', contact: '', address: '', lat: null, lng: null })
   const [saving, setSaving] = useState(false)
-  const [geoStatus, setGeoStatus] = useState('') // '', 'buscando', 'ok', 'gps', 'error'
+  const [geoStatus, setGeoStatus] = useState('') // '', 'ok', 'gps', 'error'
+  const [sugs, setSugs] = useState([])           // sugerencias de Photon
+  const [buscando, setBuscando] = useState(false)
+  const [abierto, setAbierto] = useState(false)  // dropdown visible
+  const skipRef = useRef(false)                   // evita re-buscar al elegir una sugerencia
   const set = (k, v) => setF((p) => ({ ...p, [k]: v }))
   const input = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-base outline-none focus:border-[#F5A623] focus:bg-white focus:ring-2 focus:ring-[#F5A623]/20'
   const label = 'mb-1.5 block text-sm font-bold text-[#1a237e]'
 
-  /* Geocoding: convierte la dirección escrita en coordenadas (OpenStreetMap, gratis) */
-  async function buscarDireccion() {
-    const texto = [f.address, f.city, f.state, 'Venezuela'].filter(Boolean).join(', ').trim()
-    if (!f.address.trim() && !f.city.trim()) return alert('Escribe la dirección o la ciudad primero.')
-    setGeoStatus('buscando')
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(texto)}`
-      const r = await fetch(url, { headers: { 'Accept-Language': 'es' } })
-      const data = await r.json()
-      if (data && data[0]) {
-        setF((p) => ({ ...p, lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }))
-        setGeoStatus('ok')
-      } else { setGeoStatus('error') }
-    } catch { setGeoStatus('error') }
+  /* Autocomplete con Photon (OpenStreetMap, gratis, sin API key).
+     Photon NO soporta 'es' (solo default/de/en/fr) -> usamos 'default'.
+     Si Photon falla, cae a Nominatim. Debounce 350 ms, sesgo a Caracas. */
+  useEffect(() => {
+    if (skipRef.current) { skipRef.current = false; return }
+    const q = f.address.trim()
+    if (q.length < 4) { setSugs([]); return }
+    setBuscando(true)
+    const t = setTimeout(async () => {
+      let items = []
+      // 1) Photon (sin lang=es)
+      try {
+        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q + ', Venezuela')}&lat=10.49&lon=-66.88&limit=6`
+        const r = await fetch(url)
+        if (r.ok) {
+          const data = await r.json()
+          items = (data.features || []).map((ft) => {
+            const p = ft.properties || {}
+            const linea = [p.name, p.street, p.city || p.county, p.state].filter(Boolean).join(', ')
+            return { label: linea || p.name || 'Sin nombre', lat: ft.geometry.coordinates[1], lng: ft.geometry.coordinates[0], city: p.city || p.county || '', state: p.state || '' }
+          }).filter((x) => x.label)
+        }
+      } catch { /* sigue al fallback */ }
+
+      // 2) Fallback: Nominatim si Photon no trajo nada
+      if (items.length === 0) {
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&accept-language=es&q=${encodeURIComponent(q + ', Venezuela')}`
+          const r = await fetch(url)
+          if (r.ok) {
+            const data = await r.json()
+            items = (data || []).map((d) => {
+              const a = d.address || {}
+              const ciudad = a.city || a.town || a.village || a.county || ''
+              return { label: d.display_name?.split(',').slice(0, 3).join(', ') || d.display_name, lat: parseFloat(d.lat), lng: parseFloat(d.lon), city: ciudad, state: a.state || '' }
+            }).filter((x) => x.label)
+          }
+        } catch { /* nada */ }
+      }
+
+      setSugs(items); setAbierto(true); setBuscando(false)
+    }, 350)
+    return () => clearTimeout(t)
+  }, [f.address])
+
+  function elegirSug(s) {
+    skipRef.current = true // no dispares otra búsqueda por este cambio
+    setF((p) => ({
+      ...p,
+      address: s.label,
+      lat: s.lat, lng: s.lng,
+      city: p.city || s.city || p.city,
+    }))
+    setSugs([]); setAbierto(false); setGeoStatus('ok')
   }
 
-  /* GPS: usa la ubicación actual del teléfono */
   function usarMiUbicacion() {
     if (!navigator.geolocation) return alert('Tu dispositivo no permite ubicación.')
-    setGeoStatus('buscando')
+    setGeoStatus('')
     navigator.geolocation.getCurrentPosition(
-      (pos) => { setF((p) => ({ ...p, lat: pos.coords.latitude, lng: pos.coords.longitude })); setGeoStatus('gps') },
+      (pos) => { setF((p) => ({ ...p, lat: pos.coords.latitude, lng: pos.coords.longitude })); setGeoStatus('gps'); setAbierto(false) },
       () => { setGeoStatus('error'); alert('No se pudo obtener la ubicación. Activa el GPS y permite el acceso.') },
       { enableHighAccuracy: true, timeout: 10000 }
     )
@@ -492,22 +535,42 @@ function FormCentro({ onClose, onSaved }) {
             <div><label className={label}>Ciudad / zona</label><input value={f.city} onChange={(e) => set('city', e.target.value)} className={input} placeholder="Chacao, Catia…" /></div>
           </div>
 
-          {/* Dirección + ubicación exacta */}
-          <div>
+          {/* Dirección con autocompletado (Photon) */}
+          <div className="relative">
             <label className={label}>Dirección</label>
-            <input value={f.address} onChange={(e) => { set('address', e.target.value); setGeoStatus('') }} className={input} placeholder="Av. Principal, edificio, referencia…" />
+            <div className="relative">
+              <input
+                value={f.address}
+                onChange={(e) => { set('address', e.target.value); setGeoStatus(''); set('lat', null); set('lng', null) }}
+                onFocus={() => sugs.length && setAbierto(true)}
+                className={input}
+                placeholder="Empieza a escribir la dirección…"
+                autoComplete="off"
+              />
+              {buscando && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />}
+            </div>
+
+            {/* dropdown de sugerencias */}
+            {abierto && sugs.length > 0 && (
+              <div className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg">
+                {sugs.map((s, i) => (
+                  <button key={i} onClick={() => elegirSug(s)} className="flex w-full items-start gap-2 border-b border-slate-100 px-3 py-2.5 text-left last:border-0 active:bg-slate-50">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#F5A623]" />
+                    <span className="text-sm text-slate-700">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="mt-2 flex flex-wrap gap-2">
-              <button onClick={buscarDireccion} disabled={geoStatus === 'buscando'} className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a237e]/5 px-3 py-2 text-xs font-bold text-[#1a237e] active:bg-[#1a237e]/10 disabled:opacity-60">
-                {geoStatus === 'buscando' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />} Buscar en mapa
-              </button>
-              <button onClick={usarMiUbicacion} disabled={geoStatus === 'buscando'} className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5A623]/15 px-3 py-2 text-xs font-bold text-[#9a6207] active:bg-[#F5A623]/25 disabled:opacity-60">
+              <button onClick={usarMiUbicacion} className="inline-flex items-center gap-1.5 rounded-lg bg-[#F5A623]/15 px-3 py-2 text-xs font-bold text-[#9a6207] active:bg-[#F5A623]/25">
                 <MapPin className="h-3.5 w-3.5" /> Usar mi ubicación
               </button>
             </div>
-            {/* feedback de la ubicación */}
-            {geoStatus === 'ok' && <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-emerald-600"><Check className="h-3.5 w-3.5" /> Ubicación encontrada en el mapa</p>}
+
+            {geoStatus === 'ok' && <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-emerald-600"><Check className="h-3.5 w-3.5" /> Dirección ubicada en el mapa</p>}
             {geoStatus === 'gps' && <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-emerald-600"><Check className="h-3.5 w-3.5" /> Ubicación tomada del GPS</p>}
-            {geoStatus === 'error' && <p className="mt-2 text-xs font-semibold text-rose-600">No se encontró. Prueba con más detalle o usa tu ubicación.</p>}
+            {geoStatus === 'error' && <p className="mt-2 text-xs font-semibold text-rose-600">No se pudo ubicar. Prueba con más detalle o usa tu ubicación.</p>}
             {f.lat != null && f.lng != null && (
               <a href={`https://www.google.com/maps/search/?api=1&query=${f.lat},${f.lng}`} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-[#1a237e] underline">
                 Ver punto exacto en Google Maps
